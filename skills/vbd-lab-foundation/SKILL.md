@@ -55,9 +55,23 @@ For each included lab:
 1. **Load the reference** `references/<lab>/<lab>-tutorial.md` — this is the ground-truth structure. Read every step, checkpoint, and Learn citation.
 2. **Load the template** `templates/lab-readme.md` and populate from `workshop.yaml` + `data/README.md`.
 3. **Rewrite each step** against the customer's domain: keep the same objective, order, and Fabric operation; swap product/entity names to match the customer CSVs; keep every Learn citation from `sources.yaml`.
-4. **Compose exercises + solutions** — TODOs in the exercise notebook, mirrored solutions in `solutions/` (only shipped if `deliverable.include_solutions=true`).
-5. **Freshness gate — mandatory.** Before writing files, call `components/freshness.verify(draft)`. Every feature name, UI path, KQL/SQL construct, and REST endpoint must be validated against Microsoft Learn. Roadmap-preview features get a preview banner. Deprecated features are rewritten. Loop caps at 3 attempts; anything unresolved becomes a TODO with citation.
-6. **Emit `.vbd/freshness-foundation.yaml`** — machine-readable report embedded at repo root.
+4. **If the reference dataset requires a large download** (e.g. Lakehouse WWI zip fetched via `skills/vbd-data/references/lakehouse/fetch-wwi-data.ps1`), the generated lab README **must** include a **"Step 0 — Download the sample data"** block near the top, with both PowerShell and Bash commands, e.g.:
+
+   ```markdown
+   ## Step 0 — Download the sample data
+
+   Before you start, fetch the workshop dataset (~1.9 GB):
+
+   **PowerShell:** `./data/fetch-data.ps1`
+   **Bash:** `./data/fetch-data.sh`
+
+   Both scripts download the sample zip to `data/` and are safe to re-run (idempotent).
+   ```
+
+   For labs without a fetch script (warehouse — data comes from the Lakehouse output; rti — uses Fabric built-in sample streams), no Step 0 block is needed.
+5. **Compose exercises + solutions** — TODOs in the exercise notebook, mirrored solutions in `solutions/` (only shipped if `deliverable.include_solutions=true`).
+6. **Freshness gate — mandatory.** Before writing files, call `components/freshness.verify(draft)`. Every feature name, UI path, KQL/SQL construct, and REST endpoint must be validated against Microsoft Learn. Roadmap-preview features get a preview banner. Deprecated features are rewritten. Loop caps at 3 attempts; anything unresolved becomes a TODO with citation.
+7. **Emit `.vbd/freshness-foundation.yaml`** — machine-readable report embedded at repo root.
 
 ## Lab 01 — Lakehouse content outline
 

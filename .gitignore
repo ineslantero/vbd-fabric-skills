@@ -1,3 +1,3 @@
 examples/
-skills/vbd-data/references/lakehouse/wwi-sample-dataset.zip
-skills/vbd-data/references/lakehouse/wwi-sample-dataset/
+skills/vbd-data/references/*/wwi-sample-dataset.zip
+skills/vbd-data/references/*/wwi-sample-dataset/

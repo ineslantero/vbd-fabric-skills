@@ -31,12 +31,20 @@ Ground-truth references live in `skills/vbd-data/references/<lab>/` — one fold
 skills/vbd-data/references/
 ├── README.md                    ← how to use / where the sources came from
 ├── lakehouse/                   ← CSVs from SP: 02 - Discovery Labs/01 - Lakehouse Lab/Data
-├── warehouse/                   ← CSVs from SP: 02 - Discovery Labs/02 - Data Warehouse Lab/Data
-├── rti/                         ← CSVs from SP: 02 - Discovery Labs/03 - RTI Lab/Data
+│   ├── dimension_customer.csv
+│   └── fetch-wwi-data.ps1/.sh   ← downloads the 1.9 GB WWI zip on demand (gitignored)
 └── datascience/                 ← CSVs from SP: 02 - Discovery Labs/04 - Data Science Lab/Data
 ```
 
+Only labs that ship with seed data have a reference folder. Labs without seed data are **not** represented here:
+- `warehouse` — the DW lab loads data via T-SQL `CREATE TABLE ... AS SELECT` / `COPY INTO` from the Lakehouse output, no external CSV needed.
+- `rti` — the RTI lab consumes Fabric built-in sample streams (Bicycles / Stocks / YellowTaxi) or a custom event producer, no CSV seed.
+
 The skill **must not** copy the reference CSVs verbatim — they're for shape only. Always regenerate against the customer domain.
+
+## Instructing the customer to fetch large data
+
+For any reference folder that contains a `fetch-*.ps1` / `fetch-*.sh` script (e.g. `lakehouse/fetch-wwi-data.ps1` for the WWI zip), the generated lab README **must** include an explicit "Download the sample data" step near the top telling the customer to run the equivalent fetch script from the generated repo. See `/vbd-lab-foundation` for the exact wording.
 
 ## Output shape
 
