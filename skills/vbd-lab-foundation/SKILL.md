@@ -27,15 +27,37 @@ Four labs, each mapped one-to-one against the current SharePoint asset it replac
 | 03 Real-Time Intelligence | `Real-time Intelligence Tutorial.docx` + KQL scripts | Streaming variant of the fact table | Eventstream, Eventhouse (KQL DB), Activator, real-time dashboard |
 | 04 Data Science | `Data Science Tutorial.docx` + NY-taxi notebooks (`1-ingest`, `2-explore`, `3-train`, `4-predict`) | Customer-domain regression/classification target | Notebooks, MLflow, model registry, batch scoring |
 
+## References folder — deterministic contract
+
+```
+skills/vbd-lab-foundation/references/
+├── README.md                     ← how to use / where the sources came from
+├── lakehouse/
+│   ├── lakehouse-tutorial.md     ← .docx tutorial converted to markdown
+│   └── sources.yaml              ← original SP URLs + doc refs cited in the tutorial
+├── warehouse/
+│   ├── warehouse-tutorial.md
+│   └── sources.yaml
+├── rti/
+│   ├── rti-tutorial.md
+│   └── sources.yaml
+└── datascience/
+    ├── datascience-tutorial.md
+    └── sources.yaml
+```
+
+Each `<lab>-tutorial.md` is the SharePoint Word tutorial converted to markdown with every reference link preserved (Microsoft Learn URLs, sample data links, screenshots as image refs). The skill **reads these as authoritative step structure** — objectives, order of operations, checkpoints, KQL/SQL snippets — and then rewrites them against the customer's data and industry angle. This is what makes generation deterministic: the LLM never invents lab structure, it only re-skins the reference.
+
 ## Authoring rules
 
-For each lab:
+For each included lab:
 
-1. **Load the template** `templates/lab-readme.md` and populate from `workshop.yaml` + `data/README.md`.
-2. **Draft steps** grounded in the *concepts* (workspace, OneLake, medallion, Delta, KQL, MLflow), not screenshots. Use API/UI paths but describe them narratively so a rename doesn't invalidate the whole step.
-3. **Compose exercises + solutions** — TODOs in the exercise notebook, mirrored solutions in `solutions/` (only shipped if `deliverable.include_solutions=true`).
-4. **Freshness gate — mandatory.** Before writing files, call `components/freshness.verify(draft)`. Every feature name, UI path, KQL/SQL construct, and REST endpoint must be validated against Microsoft Learn. Roadmap-preview features get a preview banner. Deprecated features are rewritten. Loop caps at 3 attempts; anything unresolved becomes a TODO with citation.
-5. **Emit `.vbd/freshness-foundation.yaml`** — machine-readable report embedded at repo root.
+1. **Load the reference** `references/<lab>/<lab>-tutorial.md` — this is the ground-truth structure. Read every step, checkpoint, and Learn citation.
+2. **Load the template** `templates/lab-readme.md` and populate from `workshop.yaml` + `data/README.md`.
+3. **Rewrite each step** against the customer's domain: keep the same objective, order, and Fabric operation; swap product/entity names to match the customer CSVs; keep every Learn citation from `sources.yaml`.
+4. **Compose exercises + solutions** — TODOs in the exercise notebook, mirrored solutions in `solutions/` (only shipped if `deliverable.include_solutions=true`).
+5. **Freshness gate — mandatory.** Before writing files, call `components/freshness.verify(draft)`. Every feature name, UI path, KQL/SQL construct, and REST endpoint must be validated against Microsoft Learn. Roadmap-preview features get a preview banner. Deprecated features are rewritten. Loop caps at 3 attempts; anything unresolved becomes a TODO with citation.
+6. **Emit `.vbd/freshness-foundation.yaml`** — machine-readable report embedded at repo root.
 
 ## Lab 01 — Lakehouse content outline
 

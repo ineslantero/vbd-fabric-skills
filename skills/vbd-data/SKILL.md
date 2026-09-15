@@ -12,16 +12,31 @@ outputs:
 
 Produce a small set of **CSV files** with dummy data that fits the customer's industry and the objectives captured in `workshop.yaml`. Keep it simple — CSVs only, no medallion pre-baking, no Parquet, no Delta. The labs themselves will do the transformations.
 
-Reference for shape and volume: [ineslantero/fabric-training-cmi — `data/`](https://github.com/ineslantero/fabric-training-cmi/tree/master/data) — a handful of related CSVs (customers, orders, products, etc.), a few thousand rows each, that tell a coherent story across the Foundation labs.
+Ground-truth references live in `skills/vbd-data/references/<lab>/` — one folder per Foundation Discovery Lab, populated with the original CSVs shipped by the SharePoint IP release ([`02 - Discovery Labs`](https://microsoft.sharepoint.com/teams/ASDIPRelease/IP%20Release/Data%20and%20AI/Fabric/1%20-%20Upskilling/1%20-%20Foundation)). The skill uses these to fix the schema, file count, and volume; the actual generated files are always retargeted to the customer's industry. See also [ineslantero/fabric-training-cmi — `data/`](https://github.com/ineslantero/fabric-training-cmi/tree/master/data) for a customer-relevant example of the same pattern.
 
 ## What to generate
 
 1. Read `workshop.yaml` — pull `customer.industry`, `customer.name`, and the included labs.
-2. Propose a **small star-schema-shaped set of CSVs** for that industry:
-   - 1 fact table (e.g. `claims.csv`, `transactions.csv`, `sales.csv`)
-   - 3–5 dimension tables (customer/member, product/procedure, date, location, etc.)
-3. Show the CSA the proposed file list + column list per file, and ask for approval before writing.
-4. On approval, generate the CSVs using Faker or plain Python `random` with a fixed seed. Aim for ~1–10k rows in the fact table, ~100–1000 in each dimension.
+2. **Look at `references/<lab>/` for the shape.** Each included lab has a `references/<lab>/` folder holding the original CSVs shipped with the SharePoint Discovery Lab (WWI retail data for Lakehouse, NY Taxi for Data Science, etc.). Use those as the ground-truth **schema, row-count, and file-count** target — one output CSV per reference CSV, same column count and role, retargeted to the customer's industry.
+3. Propose a **small star-schema-shaped set of CSVs** for that industry that mirrors the reference file list:
+   - Same number of files as the reference lab
+   - Same fact/dim split
+   - Same approximate row count (± an order of magnitude)
+4. Show the CSA the proposed file list + column list per file (side-by-side with the reference file it maps to), and ask for approval before writing.
+5. On approval, generate the CSVs using Faker or plain Python `random` with a fixed seed.
+
+## References folder — deterministic contract
+
+```
+skills/vbd-data/references/
+├── README.md                    ← how to use / where the sources came from
+├── lakehouse/                   ← CSVs from SP: 02 - Discovery Labs/01 - Lakehouse Lab/Data
+├── warehouse/                   ← CSVs from SP: 02 - Discovery Labs/02 - Data Warehouse Lab/Data
+├── rti/                         ← CSVs from SP: 02 - Discovery Labs/03 - RTI Lab/Data
+└── datascience/                 ← CSVs from SP: 02 - Discovery Labs/04 - Data Science Lab/Data
+```
+
+The skill **must not** copy the reference CSVs verbatim — they're for shape only. Always regenerate against the customer domain.
 
 ## Output shape
 
