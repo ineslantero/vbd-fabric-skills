@@ -48,13 +48,33 @@ Grab the ~1.9 GB workshop dataset before you start:
 Safe to re-run — the script skips the download if the zip is already there.
 ```
 
-## Style rules for the generated labs
+## Style rules for generated labs
 
-- **Talk to the learner.** Second person, active voice ("Create a Lakehouse", not "A Lakehouse should be created").
-- **Bullet-first.** Every step is one action, one line, one verb.
-- **Show, don't tell.** Every conceptual claim gets a code block, a screenshot placeholder, or a Learn link — never both a claim and a hedge.
-- **No filler.** Cut every "In this section, we will…" and "As we discussed above…" — the tutorial does that; your labs shouldn't.
-- **Check yourself.** Every lab ends with a *"You should now see…"* checkpoint the learner can verify.
+Modelled on [ineslantero/fabric-training-cmi/labs](https://github.com/ineslantero/fabric-training-cmi/tree/master/labs) — concise, engaging, action-first. Every lab follows the same skeleton (see `templates/lab-readme.md`):
+
+1. **Objective** — 4–8 bullets, one capability each ("Create a Fabric Lakehouse", "Query tables through the SQL analytics endpoint").
+2. **Why this matters for {customer.name}** — 4–7 bullets connecting each capability to the customer's business ("OneLake gives {customer} a shared data layer for actuarial modelling"). *Never* say "in this lab, we will…".
+3. **Microsoft Learn references** — flat bullet list at the top of the lab, not scattered under each step. Pull these straight from `references/<lab>/sources.yaml`.
+4. **Prerequisites** — Fabric access, capacity, permissions, and the exact CSV files the lab uses (path: `data/<file>.csv`).
+5. **Data setup options** *(from Lab 02 onwards, so labs are replayable)*:
+   - Option A — you already have the tables loaded from a prior lab
+   - Option B — start fresh: create workspace + Lakehouse + upload CSVs + load to tables
+6. **Sample data** — one h3 per CSV file with a one-line description and a flat `Fields:` list.
+7. **Lab steps** — `### Step N: <Verb> <Object>`. Each step is bullets, one action per bullet, imperative mood. Code blocks for SQL/Python where useful. Optional short **Explanation:** paragraph at the end of a step (never before). Optional **Checkpoint:** line the learner can verify.
+8. **Troubleshooting** — 3–6 `**symptom** → fix` bullets.
+9. **What's next** — one sentence pointing at the next lab.
+
+### Voice
+
+- **Second person imperative.** "Open Microsoft Fabric", "Go to Workspaces", "Select New item". Never "we will now open…".
+- **One action per bullet.** No compound sentences.
+- **No filler.** Cut "In this section", "As you can see", "Let's now", "We're going to". If a sentence can be removed without losing meaning, remove it.
+- **Show, don't tell.** Every conceptual claim gets a code block, a link, or a checkpoint — never both a claim and a hedge.
+- **Explanations come last.** After the actions, one short paragraph telling the learner *why* what they just did matters. Prefix with `**Explanation:**`.
+
+### Naming convention for items the learner creates
+
+Use `{{customer.slug}}_lab{{N}}_<item>_name` so no two attendees clash — e.g. `contoso_lab01_lh_name` for a Lakehouse. This mirrors the CMI labs and works well in shared training workspaces.
 
 ## Exit
 
