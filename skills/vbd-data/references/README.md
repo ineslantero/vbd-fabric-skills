@@ -6,12 +6,12 @@ Ground-truth CSVs from the SharePoint IP release Foundation Discovery Labs.
 
 ## Folders
 
-| Folder | SharePoint source | Original dataset |
-|---|---|---|
-| `lakehouse/` | `01 - Lakehouse Lab/Data` | Wide World Importers (retail) — customers, products, orders, order_lines |
-| `warehouse/` | `02 - Data Warehouse Lab/Data` | WWI aggregates + dim tables for T-SQL loads |
-| `rti/` | `03 - Real-Time Intelligence Lab/Data` | Streaming events sample (IoT/telemetry-shaped) |
-| `datascience/` | `04 - Data Science Lab/Data` | NY Taxi trips (regression target: fare / tip) |
+| Folder | SharePoint source | Original dataset | Status |
+|---|---|---|---|
+| `lakehouse/` | `01 - Lakehouse Lab/Data` | Wide World Importers (retail) — customers, products, orders, order_lines | ✓ `dimension_customer.csv` committed; full WWI zip (1.9 GB) fetched via `fetch-wwi-data.ps1` |
+| `warehouse/` | `02 - Data Warehouse Lab/Data` | WWI aggregates + dim tables for T-SQL loads | ⚠ `MISSING.md` — SP source not synced locally |
+| `rti/` | `03 - Real-Time Intelligence Lab` | Fabric built-in sample streams (Bicycles / Stocks / YellowTaxi) | ⚠ `MISSING.md` — no CSV seed, lab uses live sample streams |
+| `datascience/` | `04 - Data Science Lab/Data` | NY Taxi trips (regression target: fare / tip) | Partial — `ny-yellow-taxi-location-info.csv` (lookup) committed; main trips dataset fetched from `wasbs://` at lab time |
 
 ## How `/vbd-data` uses these
 

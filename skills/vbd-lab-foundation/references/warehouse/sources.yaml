@@ -1,0 +1,16 @@
+lab: warehouse
+source_docx: "https://microsoft.sharepoint.com/teams/ASDIPRelease/_layouts/15/Doc.aspx?sourcedoc=%7B661E3503-96A4-4D46-8AAF-25825622C6FC%7D&file=Fabric%20Data%20Warehouse%20Tutorial.docx&action=default&mobileredirect=true"
+converted_at: "2026-09-15T13:59:13.187+01:00"
+urls:
+  - url: https://microsofteur.sharepoint.com/:b:/r/teams/TridentPrivatePreview/Shared%20Documents/Documentation/Private%20Preview%20Documentation/End-to-End%20Scenarios/Overview%20and%20Concepts.pdf?csf=1&web=1&e=fJl62K
+    context: "referenced under \"<a id=\"_Toc2096278240\"></a>Introduction\""
+  - url: https://learn.microsoft.com/en-us/fabric/get-started/microsoft-fabric-overview
+    context: "referenced under \"<a id=\"_Toc2096278240\"></a>Introduction\""
+  - url: https://learn.microsoft.com/en-us/sql/samples/wide-world-importers-what-is?view=sql-server-ver16
+    context: "referenced under \"<a id=\"_Toc2096278240\"></a>Introduction\""
+  - url: https://app.fabric.microsoft.com/
+    context: "referenced under \"<a id=\"_Toc95020537\"></a>Module 1: Create a workspace \\(This step is not needed if the workspace is already created for every user upon provisioning of trial tenant\\)\""
+  - url: https://powerbi.com/
+    context: "referenced under \"<a id=\"_Toc1016620350\"></a>Create a data warehouse\""
+  - url: https://microsoft.sharepoint.com/:f:/t/TridentOnboardingCoreTeam/Epv9NZihfm5PikuZDBuBsF8BJK9gkVYPHRlHBuZT3b7frQ?e=bRAHR7
+    context: "referenced under \"<a id=\"_Toc518126710\"></a>Creating tables in the data warehouse\""

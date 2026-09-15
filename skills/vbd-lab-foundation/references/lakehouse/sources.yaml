@@ -1,0 +1,18 @@
+lab: lakehouse
+source_docx: "https://microsoft.sharepoint.com/teams/ASDIPRelease/_layouts/15/Doc.aspx?sourcedoc=%7B3F1AA930-8392-456F-A12C-123D4405DA21%7D&file=Lakehouse%20Tutorial.docx&action=default&mobileredirect=true"
+converted_at: "2026-09-15T13:59:13.187+01:00"
+urls:
+  - url: https://learn.microsoft.com/en-us/fabric/get-started/microsoft-fabric-overview
+    context: "referenced under \"What is Fabric?\""
+  - url: https://learn.microsoft.com/en-us/sql/samples/wide-world-importers-what-is?view=sql-server-ver16
+    context: "referenced under \"The sample data\""
+  - url: https://app.fabric.microsoft.com/
+    context: "referenced under \"<a id=\"_Toc157521534\"></a>Create a Fabric workspace\""
+  - url: https://powerbi.com/
+    context: "referenced under \"<a id=\"_Toc157521536\"></a>Create a lakehouse\""
+  - url: https://assetsprod\.microsoft\.com/en\-us/wwi\-sample\-dataset\.zip
+    context: "referenced under \"<a id=\"_Toc157521540\"></a>Data Ingestion\""
+  - url: https://assetsprod.microsoft.com/en-us/wwi-sample-dataset.zip
+    context: "referenced under \"<a id=\"_Toc157521540\"></a>Data Ingestion\""
+  - url: https://learn.microsoft.com/en-us/azure/synapse-analytics/spark/optimize-write-for-apache-spark
+    context: "referenced under \"<a id=\"_Toc157521541\"></a>Data Preparation\""
