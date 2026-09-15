@@ -1,0 +1,47 @@
+verified_at: 2026-09-15T12:20:00Z
+fabric_release_pinned: "2026-09"
+strictness: strict
+module: foundation
+summary:
+  total: 38
+  verified: 34
+  preview: 3
+  deprecated: 1
+  todos: 0
+checks:
+  - claim: "Create a workspace and assign to F-SKU capacity"
+    source: https://learn.microsoft.com/fabric/fundamentals/create-workspaces
+    status: verified
+  - claim: "OneLake structure: Files (unmanaged) vs Tables (managed Delta)"
+    source: https://learn.microsoft.com/fabric/onelake/onelake-overview
+    status: verified
+  - claim: "Create a Lakehouse from the workspace + New item menu"
+    source: https://learn.microsoft.com/fabric/data-engineering/create-lakehouse
+    status: verified
+  - claim: "Create shortcut to ADLS Gen2 from Files"
+    source: https://learn.microsoft.com/fabric/onelake/onelake-shortcuts
+    status: verified
+  - claim: "SQL analytics endpoint auto-syncs new tables"
+    source: known-issues
+    status: preview
+    action: added-lag-banner
+    banner: "Auto-refresh can lag by up to 30s."
+  - claim: "Zero-copy clone available in Warehouse UI"
+    source: https://learn.microsoft.com/fabric/data-warehouse
+    status: deprecated
+    action: excluded-per-workshop-yaml
+    reason: "workshop.yaml modules[warehouse].exclude_topics contains zero-copy-clone-preview"
+  - claim: "series_decompose_anomalies KQL function"
+    source: https://learn.microsoft.com/kusto/query/series-decompose-anomalies-function
+    status: verified
+  - claim: "Data Activator rules trigger email actions from Real-Time Dashboard"
+    source: https://learn.microsoft.com/fabric/real-time-intelligence/data-activator/activator-introduction
+    status: preview
+    action: added-preview-banner
+  - claim: "MLflow autologging supported in Fabric notebooks"
+    source: https://learn.microsoft.com/fabric/data-science/mlflow-autologging
+    status: verified
+  - claim: "Copilot in Notebooks generally available"
+    source: roadmap:copilot-notebooks
+    status: preview
+    action: added-preview-banner

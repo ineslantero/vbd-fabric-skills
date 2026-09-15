@@ -1,0 +1,39 @@
+# Microsoft Fabric documentation sources used by the freshness verifier.
+# Add a new source by dropping a resolver under resolvers/ and appending here.
+
+sources:
+  - id: learn-fabric
+    kind: html
+    base: https://learn.microsoft.com/fabric
+    priority: 1
+    notes: Primary product docs. Highest trust.
+
+  - id: learn-rest-fabric
+    kind: html
+    base: https://learn.microsoft.com/rest/api/fabric
+    priority: 1
+    notes: REST API reference.
+
+  - id: roadmap-fabric
+    kind: json
+    base: https://roadmap.fabric.microsoft.com
+    priority: 2
+    notes: Public roadmap. Used to gate preview/coming-soon features.
+
+  - id: whats-new-fabric
+    kind: html
+    base: https://learn.microsoft.com/fabric/fundamentals/whats-new
+    priority: 2
+    notes: Rolling monthly changes. Cross-check for renames.
+
+  - id: known-issues-fabric
+    kind: html
+    base: https://learn.microsoft.com/fabric/fundamentals/known-issues
+    priority: 3
+    notes: Active bugs. Add workaround notes when a lab step hits one.
+
+  - id: fabric-blog
+    kind: html
+    base: https://blog.fabric.microsoft.com
+    priority: 4
+    notes: Announcements. Lower trust than Learn — use only for context, not as sole citation.

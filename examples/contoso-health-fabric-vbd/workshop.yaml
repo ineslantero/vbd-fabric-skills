@@ -1,0 +1,98 @@
+workshop:
+  id: contoso-health-fabric-jan2027
+  customer:
+    name: Contoso Health
+    industry: healthcare-payer
+    persona_mix: [data-engineer, bi-analyst, data-architect]
+    audience_size: 12
+    sensitivity: confidential
+  scoping:
+    source: workiq
+    meeting_id: AAMkAG-example-id
+    transcript_path: .vbd/transcript.md
+    date: 2026-09-10
+  objectives:
+    - Migrate the legacy on-prem claims warehouse to a Fabric lakehouse (medallion).
+    - Enable near-real-time fraud alerts on the claims stream.
+    - Empower analysts with Direct Lake Power BI over the same lakehouse.
+    - Establish a shared Data Science workspace for readmission risk models.
+  constraints:
+    duration_days: 3
+    delivery_mode: hybrid
+    fabric_capacity_sku: F64
+    existing_stack: [Synapse, ADF, PBI Premium, on-prem SQL]
+    regions: [westeurope]
+  modules:
+    - id: foundation
+      include: true
+      duration_hours: 3
+      include_topics: [terminology, workspace-model, onelake, capacity, tenant-admin]
+      exclude_topics: [licensing-deep-dive]
+      customer_angle: "Map OneLake to Contoso's existing ADLS Gen2 estate via shortcuts."
+    - id: lakehouse
+      include: true
+      duration_hours: 5
+      include_topics: [medallion, shortcuts, delta, notebooks, sql-endpoint]
+      exclude_topics: []
+      customer_angle: "Bronze/silver/gold on de-identified claims; replaces Synapse dedicated pool."
+    - id: warehouse
+      include: true
+      duration_hours: 3
+      include_topics: [t-sql-on-warehouse, cross-database-query, stored-procs]
+      exclude_topics: [zero-copy-clone-preview]
+      customer_angle: "Gold aggregate served to finance's existing T-SQL tooling."
+    - id: rti
+      include: true
+      duration_hours: 5
+      include_topics: [eventstream, kql-db, kql-queries, activator, real-time-dashboard]
+      exclude_topics: []
+      customer_angle: "Fraud alert pipeline from the claims stream via Activator."
+    - id: datascience
+      include: true
+      duration_hours: 4
+      include_topics: [notebooks, mlflow, model-registry, batch-scoring]
+      exclude_topics: [gen-ai-preview]
+      customer_angle: "30-day readmission prediction on de-identified admissions data."
+    - id: datafactory
+      include: false
+      reason: "Contoso has ADF expertise; migration story covered inside the Lakehouse lab."
+    - id: security
+      include: false
+      reason: "Governance & PHI handling covered as a lightning talk on Day 3 rather than a full lab; regulated-industry deep-dive scheduled as a follow-on VBD."
+    - id: powerbi
+      include: false
+      reason: "Direct Lake demo is embedded in the Lakehouse and Warehouse labs; Contoso already runs a mature PBI CoE."
+  data_strategy:
+    mode: synthetic
+    domain: healthcare-claims
+    volume:
+      claims: 500000
+      members: 50000
+      providers: 2000
+      procedures: 400
+      diagnoses: 800
+    schema_seed: contoso-v1
+  prerequisites:
+    capacity: F64
+    licences: ["Power BI Pro x12"]
+    tenant_settings:
+      - "Users can create Fabric items — enabled for a scoped security group"
+      - "Git integration — enabled tenant-wide"
+      - "Copilot in Fabric — enabled (in preview, banner shown to attendees)"
+    attendee_setup:
+      - "Laptop with modern browser (Edge or Chrome), 8GB+ RAM"
+      - "Teams access for hybrid delivery"
+      - "VS Code + Fabric extension optional but recommended"
+    data_upload: "Customer will NOT provide claims data — synthetic dataset used throughout to keep the workshop out of PHI scope."
+  deliverable:
+    repo_name: contoso-health-fabric-vbd
+    repo_host: github-private
+    include_solutions: false
+    language: en
+  freshness:
+    fabric_release_pinned: "2026-09"
+    allow_preview_features: true
+    allow_roadmap_futures: true
+    regions_to_check: [westeurope]
+    strictness: strict
+    last_verified: 2026-09-15T12:20:00Z

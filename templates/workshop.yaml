@@ -1,0 +1,57 @@
+# workshop.yaml — the handoff contract between all /vbd-* skills.
+# /vbd-plan writes it. CSA reviews/edits. Downstream skills read it.
+#
+# Fields marked (*) are required.
+
+workshop:
+  id: <slug>                              # * e.g. contoso-fabric-jan2027
+  customer:
+    name: <string>                        # *
+    industry: <slug>                      # * healthcare-payer | banking-retail | manufacturing-discrete | ...
+    persona_mix: []                       # data-engineer | bi-analyst | data-architect | data-scientist | platform-admin
+    audience_size: 0
+    sensitivity: <label>                  # public | internal | confidential | highly-confidential
+  scoping:
+    source: <paste|workiq|email-thread>   # * where /vbd-plan got the transcript
+    meeting_id: <string>                  # if source=workiq
+    transcript_path: <path>               # relative to repo, always kept for audit
+    date: <YYYY-MM-DD>
+  objectives: []                          # * bullet list from transcript
+  constraints:
+    duration_days: 0                      # *
+    delivery_mode: <onsite|remote|hybrid>
+    fabric_capacity_sku: <F2|F4|...|F64>
+    existing_stack: []                    # Synapse | ADF | PBI Premium | Databricks | ...
+    regions: []                           # tenant regions attendees will use
+  modules:                                # * ordered; each maps to a /vbd-lab-* skill call
+    - id: <module-id>                     # foundation | lakehouse | datafactory | warehouse | rti | datascience | security | powerbi
+      include: true
+      duration_hours: 0
+      include_topics: []
+      exclude_topics: []
+      customer_angle: <one-liner>
+      # if include=false:
+      # reason: <why skipped>
+  data_strategy:
+    mode: <synthetic|anonymised-customer|public-remapped>
+    domain: <slug>                        # healthcare-claims | banking-txn | mfg-telemetry | ...
+    volume: {}                            # arbitrary key -> row count map
+    schema_seed: <slug>                   # reproducibility handle
+  prerequisites:
+    capacity: <F-SKU>
+    licences: []                          # e.g. "PBI Pro x12"
+    tenant_settings: []
+    attendee_setup: []
+    data_upload: <string>
+  deliverable:
+    repo_name: <slug>
+    repo_host: <github-private|ado|zip>
+    include_solutions: false
+    language: en
+  freshness:
+    fabric_release_pinned: <YYYY-MM>      # * pinned at plan time
+    allow_preview_features: true
+    allow_roadmap_futures: true
+    regions_to_check: []
+    strictness: <strict|balanced|permissive>
+    last_verified: <ISO-8601>
