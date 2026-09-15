@@ -26,7 +26,7 @@ Additional modules (Lakehouse, Data Factory, Data Warehouse, RTI, Data Science, 
 
 ## How to use (CSA workflow)
 
-1. **`/vbd-plan`** — paste transcript in chat, or point at a Teams meeting via WorkIQ. Skill produces `proposal.md`, `agenda.md`, `prerequisites.md`, `workshop.yaml`. CSA reviews and edits.
+1. **`/vbd-plan`** — paste transcript in chat, or point at a Teams meeting via WorkIQ. Skill produces a single `workshop-plan.md` (proposal + agenda + prereqs) and `workshop.yaml`. CSA reviews and edits.
 2. **`/vbd-data`** — reads `workshop.yaml`, generates industry-relevant dataset.
 3. **`/vbd-lab-foundation`** (and future `/vbd-lab-<module>`) — reads plan + data, authors labs. Every lab passes `components/freshness` verification before writing.
 4. **`/vbd-repo-build`** — assembles the final shareable repo; pushes to GitHub only on explicit CSA approval.
@@ -44,9 +44,7 @@ vbd-fabric-skills/
 │   └── vbd-repo-build/
 ├── templates/                  ← skeletons skills fill in
 │   ├── workshop.yaml
-│   ├── proposal.md
-│   ├── agenda.md
-│   ├── prerequisites.md
+│   ├── workshop-plan.md
 │   ├── lab-readme.md
 │   └── notebook.ipynb
 ├── components/                 ← shared helpers imported by skills

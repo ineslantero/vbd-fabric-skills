@@ -1,13 +1,11 @@
 ---
 name: vbd-plan
-description: Turn a scoping-call transcript into a Fabric VBD proposal, agenda, prerequisites, and workshop.yaml. Orchestrates downstream /vbd-* skills.
+description: Turn a scoping-call transcript into a Fabric VBD workshop plan (single markdown) plus a workshop.yaml. Orchestrates downstream /vbd-* skills.
 inputs:
   - transcript (chat paste | WorkIQ meeting | email thread)
 outputs:
-  - proposal.md
-  - agenda.md
-  - prerequisites.md
-  - workshop.yaml
+  - workshop-plan.md   (proposal + agenda + prerequisites in one concise file)
+  - workshop.yaml      (machine-readable spec consumed by downstream skills)
 ---
 
 # /vbd-plan
@@ -52,18 +50,19 @@ Output a table with `lab | score | rationale | include?`. Any lab scored ≥ 3 i
 
 ## Step 4 — Draft the plan
 
-Fill the templates (`templates/proposal.md`, `templates/agenda.md`, `templates/prerequisites.md`, `templates/workshop.yaml`) with:
-- Selected modules only (excluded modules recorded with a `reason` in `workshop.yaml`).
-- Time budget per module derived from `duration_days` and module complexity.
-- Per-module `include_topics` / `exclude_topics` / `customer_angle`.
-- Prereqs derived from selected modules + customer stack.
+Fill the single template `templates/workshop-plan.md` and `templates/workshop.yaml` with:
+- Selected labs only (excluded labs recorded with a `reason` in `workshop.yaml`).
+- Time budget per lab derived from `duration_days` and lab complexity.
+- Per-lab `include_topics` / `exclude_topics` / `customer_angle`.
+- Prereqs derived from selected labs + customer stack.
 - Agenda formatted as bullets with a one-sentence rationale per item (per user preference).
+- Everything kept concise — the workshop plan is one file, bullet-first.
 
 ## Step 5 — CSA review gate
 
-Present all four artefacts. CSA can:
+Present both artefacts (`workshop-plan.md` and `workshop.yaml`). CSA can:
 - Approve as-is → proceed to Step 6.
-- Edit any of them → re-render dependent artefacts.
+- Edit either → re-render.
 - Reject → capture feedback and redraft.
 
 ## Step 6 — Freshness pre-check (mandatory, right before lab generation)

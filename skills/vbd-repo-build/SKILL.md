@@ -3,7 +3,7 @@ name: vbd-repo-build
 description: Assemble the final shareable customer repo from workshop.yaml + generated labs + data. Optional GitHub push on explicit CSA approval.
 inputs:
   - workshop.yaml
-  - proposal.md, agenda.md, prerequisites.md
+  - workshop-plan.md
   - labs/*, data/, .vbd/freshness-*.yaml
 outputs:
   - <deliverable.repo_name>/ folder ready to zip or push
@@ -19,8 +19,7 @@ Final assembler. Consumes everything produced by upstream skills and stages a cl
 ```
 <repo_name>/
 ├── README.md           ← generated from templates/repo-readme.md
-├── agenda.md
-├── prerequisites.md
+├── workshop-plan.md    ← proposal + agenda + prereqs in one file
 ├── FRESHNESS.md        ← aggregated from .vbd/freshness-*.yaml
 ├── data/
 ├── labs/

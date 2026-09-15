@@ -12,7 +12,7 @@ Design record for the reusable Fabric VBD skill family. See [`../README.md`](../
 
 | Skill | Role | Consumes | Produces |
 |---|---|---|---|
-| `/vbd-plan` | Orchestrator | Transcript (chat paste / WorkIQ / email thread) | `proposal.md`, `agenda.md`, `prerequisites.md`, `workshop.yaml` |
+| `/vbd-plan` | Orchestrator | Transcript (chat paste / WorkIQ / email thread) | `workshop-plan.md`, `workshop.yaml` |
 | `/vbd-data` | Data generator | `workshop.yaml` | `data/` + `data/README.md` |
 | `/vbd-lab-foundation` | Foundation Discovery Labs | `workshop.yaml` + `data/` | `labs/01-lakehouse`, `02-warehouse`, `03-rti`, `04-datascience` |
 | `/vbd-lab-<module>` (future) | Per-module VBDs | Same | `labs/nn-<module>/` |
@@ -21,7 +21,7 @@ Design record for the reusable Fabric VBD skill family. See [`../README.md`](../
 ## Templates
 
 - `templates/workshop.yaml` — handoff contract schema
-- `templates/proposal.md`, `agenda.md`, `prerequisites.md`
+- `templates/workshop-plan.md` — single consolidated plan (proposal + agenda + prereqs)
 - `templates/lab-readme.md`, `notebook.ipynb`
 
 ## Components
