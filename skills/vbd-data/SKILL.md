@@ -1,66 +1,69 @@
 ---
 name: vbd-data
-description: Generate a set of sample CSV files relevant to the customer's use case for a Fabric VBD workshop.
+description: Generate a small, coherent set of sample CSV files in the customer's industry for the Fabric VBD workshop.
 inputs:
   - workshop.yaml
 outputs:
-  - data/*.csv
-  - data/README.md (schema + provenance)
+  - data/*.csv          (fact + dims, industry-retargeted)
+  - data/fetch-data.ps1 (only if a lab needs a large public dataset, e.g. Lakehouse WWI)
+  - data/fetch-data.sh
+  - data/README.md      (schema per file, row counts, seed used, provenance)
 ---
 
 # /vbd-data
 
-Produce a small set of **CSV files** with dummy data that fits the customer's industry and the objectives captured in `workshop.yaml`. Keep it simple — CSVs only, no medallion pre-baking, no Parquet, no Delta. The labs themselves will do the transformations.
+Produce a small star-schema-shaped set of **CSV files** that fit the customer's industry and the labs selected in `workshop.yaml`. CSVs only — no Parquet, no Delta, no medallion pre-baking. The labs themselves do the transformations.
 
-Ground-truth references live in `skills/vbd-data/references/<lab>/` — one folder per Foundation Discovery Lab, populated with the original CSVs shipped by the SharePoint IP release ([`02 - Discovery Labs`](https://microsoft.sharepoint.com/teams/ASDIPRelease/IP%20Release/Data%20and%20AI/Fabric/1%20-%20Upskilling/1%20-%20Foundation)). The skill uses these to fix the schema, file count, and volume; the actual generated files are always retargeted to the customer's industry. See also [ineslantero/fabric-training-cmi — `data/`](https://github.com/ineslantero/fabric-training-cmi/tree/master/data) for a customer-relevant example of the same pattern.
+Reference for style: [ineslantero/fabric-training-cmi — `data/`](https://github.com/ineslantero/fabric-training-cmi/tree/master/data). Reference for shape: the SP CSVs in `skills/vbd-data/references/<lab>/`.
 
-## What to generate
+## What the sample CSVs should look like
 
-1. Read `workshop.yaml` — pull `customer.industry`, `customer.name`, and the included labs.
-2. **Look at `references/<lab>/` for the shape.** Each included lab has a `references/<lab>/` folder holding the original CSVs shipped with the SharePoint Discovery Lab (WWI retail data for Lakehouse, NY Taxi for Data Science, etc.). Use those as the ground-truth **schema, row-count, and file-count** target — one output CSV per reference CSV, same column count and role, retargeted to the customer's industry.
-3. Propose a **small star-schema-shaped set of CSVs** for that industry that mirrors the reference file list:
-   - Same number of files as the reference lab
-   - Same fact/dim split
-   - Same approximate row count (± an order of magnitude)
-4. Show the CSA the proposed file list + column list per file (side-by-side with the reference file it maps to), and ask for approval before writing.
-5. On approval, generate the CSVs using Faker or plain Python `random` with a fixed seed.
+Every workshop dataset follows the **same star-schema pattern** as the SharePoint Discovery Labs: one fact table + a handful of dimensions with clean foreign keys. The retargeting keeps the shape and swaps the domain.
 
-## References folder — deterministic contract
+### Lakehouse lab
 
-```
-skills/vbd-data/references/
-├── README.md                    ← how to use / where the sources came from
-├── lakehouse/                   ← CSVs from SP: 02 - Discovery Labs/01 - Lakehouse Lab/Data
-│   ├── dimension_customer.csv
-│   └── fetch-wwi-data.ps1/.sh   ← downloads the 1.9 GB WWI zip on demand (gitignored)
-└── datascience/                 ← CSVs from SP: 02 - Discovery Labs/04 - Data Science Lab/Data
-```
+The WWI reference uses a retail fact + 4 dims. You mirror the same shape for the customer's industry.
 
-Only labs that ship with seed data have a reference folder. Labs without seed data are **not** represented here:
-- `warehouse` — the DW lab loads data via T-SQL `CREATE TABLE ... AS SELECT` / `COPY INTO` from the Lakehouse output, no external CSV needed.
-- `rti` — the RTI lab consumes Fabric built-in sample streams (Bicycles / Stocks / YellowTaxi) or a custom event producer, no CSV seed.
+| Reference file | Role | Rows | Customer example (healthcare) |
+|---|---|---|---|
+| `fact_sale` (in the WWI zip, ~50M rows) | Fact | 5–10k after downsample | `fact_claim.csv` — one row per claim line |
+| `dimension_customer.csv` (committed, ~65 KB) | Dim | ~400 | `dimension_member.csv` — one row per patient |
+| `dimension_city` | Dim | ~100 | `dimension_facility.csv` — one row per hospital/clinic |
+| `dimension_date` | Dim | ~2000 | `dimension_date.csv` — one row per day (keep as-is) |
+| `dimension_stock_item` | Dim | ~200 | `dimension_procedure.csv` — one row per CPT code |
+| `dimension_employee` | Dim | ~200 | `dimension_provider.csv` — one row per doctor |
 
-The skill **must not** copy the reference CSVs verbatim — they're for shape only. Always regenerate against the customer domain.
+**Fact columns** (Lakehouse): keep the same *roles* — surrogate keys to every dim, at least 3 measure columns (e.g. `TotalExcludingTax` → `AllowedAmount`, `TaxAmount` → `PatientResponsibility`, `Profit` → `PaidAmount`), an event date.
 
-## Instructing the customer to fetch large data
+### Data Science lab
 
-For any reference folder that contains a `fetch-*.ps1` / `fetch-*.sh` script (e.g. `lakehouse/fetch-wwi-data.ps1` for the WWI zip), the generated lab README **must** include an explicit "Download the sample data" step near the top telling the customer to run the equivalent fetch script from the generated repo. See `/vbd-lab-foundation` for the exact wording.
+The NY Taxi reference is a fact (trips) + one small lookup (locations).
 
-## Output shape
+| Reference file | Role | Customer example (insurance) |
+|---|---|---|
+| `yellow_tripdata_YYYY-MM.parquet` (fetched from Azure Open Datasets) | Fact | `fact_policy_quote.csv` — one row per quote, target = `PremiumPaid` |
+| `ny-yellow-taxi-location-info.csv` (committed, ~4 KB) | Lookup | `dimension_region.csv` — one row per postcode/region |
 
-```
-data/
-├── README.md              ← file list, columns per file, row counts, seed used
-├── <fact>.csv
-├── <dim1>.csv
-├── <dim2>.csv
-└── ...
-```
+**Fact must contain a regression or classification target** the notebook can predict. If the customer transcript doesn't name one, propose one to the CSA (e.g. "predict `PremiumPaid`" for insurance, "predict `LengthOfStay`" for hospital admissions).
+
+### Warehouse and RTI
+
+**No CSVs.** Warehouse loads from the Lakehouse output; RTI streams from Fabric's built-in sample eventstreams. Nothing to generate.
+
+## How to run
+
+1. **Read `workshop.yaml`** — pull `customer.industry`, `customer.name`, and the included labs.
+2. **Draft the file list** — one output CSV per reference CSV that's needed, using the mapping above. Include the fact + all dims the lab notebooks reference (peek into `references/<lab>/<lab>-tutorial.md` to see which dims each notebook loads).
+3. **Draft the schemas** — for each file, list columns with type + example value + which reference column it maps from.
+4. **Show the CSA the mapping table + first 3 rows of each file (dry run)** and ask for approval before writing. Adjust based on feedback.
+5. **On approval, generate** with Faker or `random` under a fixed seed. Enforce referential integrity — every FK in the fact must resolve to a row in the matching dim.
+6. **Emit `data/README.md`** — one section per file with columns, row count, sample rows, and the seed used.
 
 ## Guardrails
 
-- **CSV only.** No Parquet, no Delta, no bronze/silver/gold folders — labs create those.
-- **No PII.** Use Faker or made-up identifiers; never use real names/emails/IDs even if the transcript mentioned them.
-- **Deterministic.** Fix the seed and record it in `data/README.md`.
-- **Coherent across files.** Foreign keys in the fact table must actually exist in the dim files (referential integrity).
-- **Small.** Files should be committable to a git repo (< 5 MB each). If the CSA wants larger volumes, add a note in the README and generate a script the customer can run to scale up.
+- **CSV only.** No Parquet, no Delta, no bronze/silver/gold subfolders — labs create those.
+- **No PII.** Faker or made-up identifiers, always. Never use real names, emails, or IDs even if the transcript mentioned them.
+- **Deterministic.** Fix the seed. Record it in `data/README.md` so the CSA can regenerate byte-identical output.
+- **Referential integrity.** Every FK in the fact table must exist in the dim files.
+- **Small.** Each file < 5 MB (git-committable). If the customer wants realistic volumes, emit a `scale-up.py` script instead of committing a 500 MB fact.
+- **Reference-shaped, not reference-copied.** Never emit rows from the SP CSVs verbatim.

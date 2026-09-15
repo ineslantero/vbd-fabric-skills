@@ -1,118 +1,61 @@
 ---
 name: vbd-lab-foundation
-description: Author the Fabric Foundation Discovery Labs (Lakehouse, Data Warehouse, Real-Time Intelligence, Data Science) tailored to the customer in workshop.yaml.
+description: Author the 4 Fabric Foundation Discovery Labs (Lakehouse, Warehouse, RTI, Data Science) tailored to the customer in workshop.yaml.
 inputs:
   - workshop.yaml
   - data/ (from /vbd-data)
 outputs:
-  - labs/01-lakehouse/     README + scripts + notebook cells + data slice
-  - labs/02-warehouse/     README + T-SQL scripts + notebook cells
-  - labs/03-rti/           README + KQL scripts + eventstream config
+  - labs/01-lakehouse/     README + notebooks
+  - labs/02-warehouse/     README + T-SQL scripts
+  - labs/03-rti/           README + KQL + eventstream config
   - labs/04-datascience/   README + 4 notebooks (ingest, explore, train, predict)
   - .vbd/freshness-foundation.yaml
 ---
 
 # /vbd-lab-foundation
 
-Replaces the static SharePoint Foundation Discovery Labs bundle (`Data and AI/Fabric/1 - Upskilling/1 - Foundation/Upskilling on MS Fabric Foundation/Assets/02 - Discovery Labs`) with regenerable, customer-relevant, freshness-verified content.
+Regenerate the SharePoint Foundation Discovery Labs against the customer's data and industry angle. **You never invent lab structure** — you re-skin the reference tutorial for each lab.
 
-## What it produces
+## The 4 labs
 
-Four labs, each mapped one-to-one against the current SharePoint asset it replaces:
+| # | Lab | Reference | Data comes from | Tech taught |
+|---|---|---|---|---|
+| 01 | **Lakehouse** | `references/lakehouse/lakehouse-tutorial.md` | `data/*.csv` + WWI zip via fetch script | Lakehouse, OneLake, shortcuts, Delta, Spark, SQL endpoint |
+| 02 | **Warehouse** | `references/warehouse/warehouse-tutorial.md` | Lakehouse output (Lab 01) | Warehouse, T-SQL, stored procs, semantic model |
+| 03 | **RTI** | `references/rti/rti-tutorial.md` | Fabric built-in sample streams | Eventstream, Eventhouse, KQL, real-time dashboard, Activator |
+| 04 | **Data Science** | `references/datascience/datascience-tutorial.md` | `data/*.csv` (customer regression/classification target) | Notebooks, MLflow, batch scoring, semantic link |
 
-| Lab | Replaces | Data | Tech |
-|---|---|---|---|
-| 01 Lakehouse | `Lakehouse Tutorial.docx` + `wwi-sample-dataset.zip` | Customer domain (from `/vbd-data`) | Lakehouse, OneLake, Delta, Spark, SQL endpoint |
-| 02 Data Warehouse | `Fabric Data Warehouse Tutorial.docx` + T-SQL scripts | Same domain, gold layer | Warehouse, T-SQL, stored procs, semantic model |
-| 03 Real-Time Intelligence | `Real-time Intelligence Tutorial.docx` + KQL scripts | Streaming variant of the fact table | Eventstream, Eventhouse (KQL DB), Activator, real-time dashboard |
-| 04 Data Science | `Data Science Tutorial.docx` + NY-taxi notebooks (`1-ingest`, `2-explore`, `3-train`, `4-predict`) | Customer-domain regression/classification target | Notebooks, MLflow, model registry, batch scoring |
+## Authoring loop — one pass per included lab
 
-## References folder — deterministic contract
+1. **Load the reference tutorial** at `references/<lab>/<lab>-tutorial.md` and its `sources.yaml`. Extract objectives, step order, checkpoints, and every code snippet + Learn citation.
+2. **Load `templates/lab-readme.md`** and populate the header from `workshop.yaml` + `data/README.md`.
+3. **Re-skin each step** — keep the objective, order, and Fabric operation; swap WWI/taxi names for the customer's entity names (e.g. `fact_sale` → `fact_claim`, `dimension_customer` → `dimension_member`). Preserve every Learn URL.
+4. **If the lab needs a big download**, prepend a **Step 0 — Download the sample data** block (both PowerShell and Bash), pointing at `data/fetch-data.ps1` / `.sh`. Only Lakehouse needs this today (1.9 GB WWI zip); Warehouse and RTI don't.
+5. **Add exercise + solution notebooks** — TODOs in the exercise, mirrored solutions in `solutions/` (only shipped if `deliverable.include_solutions=true`).
+6. **Freshness gate — mandatory.** Call `components/freshness.verify(draft)` before writing. Every feature name, UI path, KQL/SQL snippet, and REST endpoint is validated against Microsoft Learn. Preview features get a preview banner; deprecated features are rewritten; anything unresolved after 3 attempts becomes a TODO with a citation.
+7. **Emit `.vbd/freshness-foundation.yaml`** — machine-readable verification report.
 
+## Sample "Step 0 — Download the sample data" block
+
+```markdown
+## Step 0 — Download the sample data
+
+Grab the ~1.9 GB workshop dataset before you start:
+
+- **PowerShell:** `./data/fetch-data.ps1`
+- **Bash:** `./data/fetch-data.sh`
+
+Safe to re-run — the script skips the download if the zip is already there.
 ```
-skills/vbd-lab-foundation/references/
-├── README.md                     ← how to use / where the sources came from
-├── lakehouse/
-│   ├── lakehouse-tutorial.md     ← .docx tutorial converted to markdown
-│   └── sources.yaml              ← original SP URLs + doc refs cited in the tutorial
-├── warehouse/
-│   ├── warehouse-tutorial.md
-│   └── sources.yaml
-├── rti/
-│   ├── rti-tutorial.md
-│   └── sources.yaml
-└── datascience/
-    ├── datascience-tutorial.md
-    └── sources.yaml
-```
 
-Each `<lab>-tutorial.md` is the SharePoint Word tutorial converted to markdown with every reference link preserved (Microsoft Learn URLs, sample data links, screenshots as image refs). The skill **reads these as authoritative step structure** — objectives, order of operations, checkpoints, KQL/SQL snippets — and then rewrites them against the customer's data and industry angle. This is what makes generation deterministic: the LLM never invents lab structure, it only re-skins the reference.
+## Style rules for the generated labs
 
-## Authoring rules
-
-For each included lab:
-
-1. **Load the reference** `references/<lab>/<lab>-tutorial.md` — this is the ground-truth structure. Read every step, checkpoint, and Learn citation.
-2. **Load the template** `templates/lab-readme.md` and populate from `workshop.yaml` + `data/README.md`.
-3. **Rewrite each step** against the customer's domain: keep the same objective, order, and Fabric operation; swap product/entity names to match the customer CSVs; keep every Learn citation from `sources.yaml`.
-4. **If the reference dataset requires a large download** (e.g. Lakehouse WWI zip fetched via `skills/vbd-data/references/lakehouse/fetch-wwi-data.ps1`), the generated lab README **must** include a **"Step 0 — Download the sample data"** block near the top, with both PowerShell and Bash commands, e.g.:
-
-   ```markdown
-   ## Step 0 — Download the sample data
-
-   Before you start, fetch the workshop dataset (~1.9 GB):
-
-   **PowerShell:** `./data/fetch-data.ps1`
-   **Bash:** `./data/fetch-data.sh`
-
-   Both scripts download the sample zip to `data/` and are safe to re-run (idempotent).
-   ```
-
-   For labs without a fetch script (warehouse — data comes from the Lakehouse output; rti — uses Fabric built-in sample streams), no Step 0 block is needed.
-5. **Compose exercises + solutions** — TODOs in the exercise notebook, mirrored solutions in `solutions/` (only shipped if `deliverable.include_solutions=true`).
-6. **Freshness gate — mandatory.** Before writing files, call `components/freshness.verify(draft)`. Every feature name, UI path, KQL/SQL construct, and REST endpoint must be validated against Microsoft Learn. Roadmap-preview features get a preview banner. Deprecated features are rewritten. Loop caps at 3 attempts; anything unresolved becomes a TODO with citation.
-7. **Emit `.vbd/freshness-foundation.yaml`** — machine-readable report embedded at repo root.
-
-## Lab 01 — Lakehouse content outline
-
-_Skill will fill this in; here's the shape_
-
-- **Objectives:** create a workspace, create a Lakehouse, load bronze via shortcut/upload, transform to silver via notebook, build gold aggregate, query via SQL endpoint.
-- **Steps:** workspace creation → Lakehouse creation → ingest (Data Factory copy or upload) → notebook to Delta → SQL endpoint query → semantic model.
-- **Customer angle:** e.g. "map OneLake to your existing ADLS Gen2 estate via shortcuts".
-- **Notebook:** `01 - Create Delta Tables.ipynb` (replaces the SharePoint one), `02 - Business Aggregates.ipynb`.
-- **Learn refs to cite:**
-  - https://learn.microsoft.com/fabric/onelake/onelake-overview
-  - https://learn.microsoft.com/fabric/data-engineering/lakehouse-overview
-  - https://learn.microsoft.com/fabric/onelake/onelake-shortcuts
-
-## Lab 02 — Data Warehouse content outline
-
-- **Objectives:** create Warehouse, load from Lakehouse via `INSERT ... SELECT` or COPY INTO, write stored proc for aggregate, expose via semantic model.
-- **Scripts:** T-SQL for `Create Tables`, `Load Tables`, `Create Aggregate Procedure`, `Run Aggregate Procedure` (mirrors SharePoint `.txt` scripts, but generated against the customer schema).
-- **Learn refs:**
-  - https://learn.microsoft.com/fabric/data-warehouse/data-warehousing
-  - https://learn.microsoft.com/fabric/data-warehouse/ingest-data
-  - https://learn.microsoft.com/fabric/data-warehouse/tutorial-load-data
-
-## Lab 03 — Real-Time Intelligence content outline
-
-- **Objectives:** stand up an Eventstream, ingest into an Eventhouse (KQL DB), query with KQL, build a real-time dashboard, trigger an Activator alert.
-- **Data:** streaming variant of the customer fact table (e.g. claims stream, txn stream, telemetry stream).
-- **KQL scripts:** replaces `Real-Time Intelligence Tutorial KQL Scripts.txt`.
-- **Learn refs:**
-  - https://learn.microsoft.com/fabric/real-time-intelligence/overview
-  - https://learn.microsoft.com/fabric/real-time-intelligence/event-streams/overview
-  - https://learn.microsoft.com/fabric/real-time-intelligence/data-activator/activator-introduction
-
-## Lab 04 — Data Science content outline
-
-- **Objectives:** run the 4-notebook flow on customer data — ingest, explore, train, predict.
-- **Notebooks:** `1-ingest-data.ipynb`, `2-explore-cleanse-data.ipynb`, `3-train-evaluate.ipynb`, `4-predict.ipynb` (mirrors SharePoint but re-targeted at customer regression/classification).
-- **Learn refs:**
-  - https://learn.microsoft.com/fabric/data-science/data-science-overview
-  - https://learn.microsoft.com/fabric/data-science/mlflow-autologging
+- **Talk to the learner.** Second person, active voice ("Create a Lakehouse", not "A Lakehouse should be created").
+- **Bullet-first.** Every step is one action, one line, one verb.
+- **Show, don't tell.** Every conceptual claim gets a code block, a screenshot placeholder, or a Learn link — never both a claim and a hedge.
+- **No filler.** Cut every "In this section, we will…" and "As we discussed above…" — the tutorial does that; your labs shouldn't.
+- **Check yourself.** Every lab ends with a *"You should now see…"* checkpoint the learner can verify.
 
 ## Exit
 
-Write a summary of what was authored, the freshness report location, and any TODOs the CSA must resolve manually.
+Print: labs authored, freshness report location, and any TODOs the CSA must resolve manually before shipping.
