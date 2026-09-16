@@ -13,10 +13,7 @@ Ground-truth lab tutorials from the SharePoint IP release Foundation Discovery L
 | `rti/` | `03 - Real-Time Intelligence Lab` | `Real-time Intelligence Tutorial.docx` |
 | `datascience/` | `04 - Data Science Lab` | `Data Science Tutorial.docx` |
 
-Each folder contains:
-
-- `<lab>-tutorial.md` — the Word tutorial converted to markdown. Preserves headings, step numbering, code blocks, and every link to Microsoft Learn or sample data.
-- `sources.yaml` — machine-readable list of every URL cited in the tutorial (Learn docs, GitHub samples, Fabric portal paths), used by `components/freshness` to re-verify each citation at generation time.
+Each folder contains a **single** `<lab>-tutorial.md` — the SharePoint Word tutorial converted to markdown and freshness-verified. Every Microsoft Learn URL cited is inline in the markdown (no separate index file). Freshness re-verifies each URL at lab-generation time.
 
 ## How `/vbd-lab-foundation` uses these
 
@@ -29,7 +26,7 @@ Each folder contains:
 When the SharePoint IP release publishes a new tutorial revision:
 
 1. Download the updated `.docx`.
-2. Re-convert to markdown (pandoc or the Scout `docx` skill).
+2. Re-convert to markdown (`scripts/clean_tutorials.py`).
 3. Replace `<lab>-tutorial.md`.
-4. Regenerate `sources.yaml` (list every URL in the new markdown).
+4. Re-run the freshness audit (see `.vbd/freshness-audit-<date>.md`).
 5. Commit with a note pointing at the new SharePoint revision timestamp.

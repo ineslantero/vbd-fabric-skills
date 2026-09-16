@@ -1,7 +1,9 @@
 # Fabric Foundation VBD - Data Warehouse Lab Tutorial
 
 > Converted from `Fabric Data Warehouse Tutorial.docx` (SharePoint IP Release - Fabric Foundation Discovery Labs).
-> Screenshots have been stripped; refer to `sources.yaml` in this folder for the Microsoft Learn URLs cited throughout.
+> Screenshots have been stripped; Microsoft Learn URLs are cited inline throughout.
+
+> **Freshness-verified 2026-09-15** — Cross-checked against Microsoft Learn. Fixes applied per `.vbd/freshness-audit-2026-09-15.md`. Preview features are called out inline where relevant.
 
 ## Contents
 
@@ -48,16 +50,16 @@
 
 ## Microsoft Learn references
 
-- https://microsofteur.sharepoint.com/:b:/r/teams/TridentPrivatePreview/Shared%20Documents/Documentation/Private%20Preview%20Documentation/End-to-End%20Scenarios/Overview%20and%20Concepts.pdf?csf=1&web=1&e=fJl62K
+- https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
 - https://learn.microsoft.com/en-us/fabric/get-started/microsoft-fabric-overview
-- https://microsofteur.sharepoint.com/:b:/r/teams/TridentPrivatePreview/Shared%20Documents/Documentation/Private%20Preview%20Documentation/End-to-End%20Scenarios/Overview%20and%20Concepts.pdf?csf=1&web=1&e=fJl62K
+- https://learn.microsoft.com/en-us/fabric/data-warehouse/tutorial-introduction
 - https://learn.microsoft.com/en-us/sql/samples/wide-world-importers-what-is?view=sql-server-ver16
 - https://learn.microsoft.com/en-us/sql/samples/wide-world-importers-what-is?view=sql-server-ver16
 - https://app.fabric.microsoft.com/
 - https://powerbi.com/
 - https://powerbi.com/
-- https://microsoft.sharepoint.com/:f:/t/TridentOnboardingCoreTeam/Epv9NZihfm5PikuZDBuBsF8BJK9gkVYPHRlHBuZT3b7frQ?e=bRAHR7
-- https://microsoft.sharepoint.com/:f:/t/TridentOnboardingCoreTeam/Epv9NZihfm5PikuZDBuBsF8BJK9gkVYPHRlHBuZT3b7frQ?e=bRAHR7
+- https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
+- https://learn.microsoft.com/en-us/fabric/data-warehouse/tutorial-introduction
 
 ## Modules
 
@@ -70,8 +72,7 @@
 - Name the workspace `Data Warehouse Tutorial` plus a unique suffix.
 - Optionally add a description.
 - Expand **Advanced**.
-- Choose **Premium capacity** under **License mode**.
-- Choose a capacity you can access.
+- Choose **Fabric capacity** under **License mode** and pick an F-SKU, or choose **Trial**.
 - Select **Apply**.
 
 **Explanation:** The workspace keeps the Warehouse, pipeline, semantic model, and reports together. Skip this step if a lab workspace already exists.
@@ -118,18 +119,18 @@
 #### Step 4: Build the quick customer report
 
 - Open `WideWorldImporters` as a Warehouse.
-- Go to **Reporting**.
-- Select **Manage default semantic model**.
+- From the Warehouse ribbon, select **New semantic model**.
+- Name it `WideWorldImporters_model`.
 - Select `dimension_customer`.
 - Select **Confirm**.
 - Return to the workspace item view.
-- Open the `WideWorldImporters` semantic model.
+- Open the `WideWorldImporters_model` semantic model.
 - Select **Explore this data** > **Auto-create a report**.
 - Select **Save**.
 - Name the report `Customer Quick Summary`.
 - Select **Save**.
 
-**Explanation:** The quick report verifies Warehouse-to-Power BI integration before the solution expands.
+**Explanation:** Since Sept 2025, Fabric no longer auto-creates default semantic models — you now create them explicitly.
 **Checkpoint:** `Customer Quick Summary` appears in the workspace.
 
 ### Module 3: Extending the solution
@@ -166,7 +167,7 @@ CREATE TABLE [dbo].[fact_sale] ( [SaleKey] [bigint] NULL, [CityKey] [int] NULL, 
 
 - Create a new data pipeline.
 - Name it `Copy data to dimension city and fact sale`.
-- Open **Copy data assistant**.
+- Open **Copy assistant**.
 - Select `wwilakehouse` as the Lakehouse source.
 - Browse to `OneLake -> wwilakehouse -> files section -> /wwi-raw-data/WideWorldImportersDW/tables`.
 - Select `dimension_city.parquet`.
@@ -264,8 +265,9 @@ EXEC [dbo].[populate_aggregate_sale_by_city];
 
 #### Step 10: Build the Warehouse report
 
-- Go to **Reporting** > **Manage default semantic model**.
-- Add `dimension_city` and `fact_sale`.
+- From the Warehouse ribbon, select **New semantic model**.
+- Name it `WideWorldImporters_sales_model`.
+- Select `dimension_city` and `fact_sale`.
 - Select **Confirm**.
 - Open **Model** view.
 - Drag `fact_sale.CityKey` to `dimension_city.CityKey`.
@@ -282,7 +284,7 @@ EXEC [dbo].[populate_aggregate_sale_by_city];
 - Name the report `Sales Analysis`.
 - Select **Save**.
 
-**Explanation:** The semantic model relationship lets report visuals combine fact and dimension fields correctly.
+**Explanation:** Since Sept 2025, Fabric no longer auto-creates default semantic models — you now create them explicitly. The relationship lets report visuals combine fact and dimension fields correctly.
 **Checkpoint:** `Sales Analysis` is saved in the workspace.
 
 #### Step 11: Query historical Warehouse versions
@@ -290,8 +292,8 @@ EXEC [dbo].[populate_aggregate_sale_by_city];
 - Open a new SQL query.
 - Check the current `PostalCode` for `CustomerKey = 234`.
 - Update the same row twice.
-- Capture the current timestamp.
-- Query earlier states with `OPTION (FOR TIMESTAMP AS OF ...)`.
+- Run `SELECT CURRENT_TIMESTAMP;` and copy the returned value.
+- Query earlier states with `OPTION (FOR TIMESTAMP AS OF ...)`, using an AS OF timestamp about 2 minutes before that value.
 
 ```sql
 SELECT * FROM [dbo].[dimension_customer] where CustomerKey =  234;
@@ -302,11 +304,8 @@ update [dbo].[dimension_customer] set PostalCode = 76227 where CustomerKey =  23
 
 SELECT CURRENT_TIMESTAMP;
 
-Latest Status as of 20:00:06 SELECT CustomerKey, PostalCode FROM [dbo].[dimension_customer] where CustomerKey =  234 OPTION (FOR TIMESTAMP AS OF '2024-08-30T20:00:06.000');
-
-Prior Status as of 19:52:00 SELECT CustomerKey, PostalCode FROM [dbo].[dimension_customer] where CustomerKey =  234 OPTION (FOR TIMESTAMP AS OF '2024-08-30T19:52:00.000');
-
-Prior Status as of 19:45:00 SELECT CustomerKey, PostalCode FROM [dbo].[dimension_customer] where CustomerKey =  234 OPTION (FOR TIMESTAMP AS OF '2024-08-30T19:45:00.000');
+-- Replace the timestamp below with a value about 2 minutes before the value returned above.
+SELECT CustomerKey, PostalCode FROM [dbo].[dimension_customer] where CustomerKey =  234 OPTION (FOR TIMESTAMP AS OF '<captured timestamp minus about 2 minutes>');
 ```
 
 **Explanation:** Time travel lets you query prior table versions within the Warehouse retention window.
@@ -314,8 +313,7 @@ Prior Status as of 19:45:00 SELECT CustomerKey, PostalCode FROM [dbo].[dimension
 
 #### Step 12: Clone `dimension_customer`
 
-- Select the `dimension_customer` table.
-- Open the table menu or **Table tools**.
+- Right-click `dimension_customer` in **Explorer**.
 - Select **Clone table**.
 - Review the populated source schema and table name.
 - Keep **Table state** as current, or choose a past point in time.

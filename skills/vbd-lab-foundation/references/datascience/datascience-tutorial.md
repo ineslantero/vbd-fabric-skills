@@ -1,7 +1,9 @@
 # Fabric Foundation VBD - Data Science Lab Tutorial
 
 > Converted from `Data Science Tutorial.docx` (SharePoint IP Release - Fabric Foundation Discovery Labs).
-> Screenshots have been stripped; refer to `sources.yaml` in this folder for the Microsoft Learn URLs cited throughout.
+> Screenshots have been stripped; Microsoft Learn URLs are cited inline throughout.
+
+> **Freshness-verified 2026-09-15** — Cross-checked against Microsoft Learn. Fixes applied per `.vbd/freshness-audit-2026-09-15.md`. Preview features are called out inline where relevant.
 
 ## Contents
 
@@ -169,9 +171,8 @@
 
 #### Step 2: Import the tutorial notebooks
 
-- Switch to Fabric from the experience switcher.
 - Open or create a workspace named `Data Science Tutorial`.
-- Verify the workspace uses Spark version 3 or higher.
+- Confirm the workspace default runtime is **Fabric Runtime 1.3** or newer.
 - Download notebooks 1-4 (`.ipynb`) from the lab **Scripts** folder.
 - Select **Import** > **Notebook** > **From this computer**.
 - Select **Upload** in the **Import Status** pane.
@@ -202,7 +203,7 @@
 - Open the Lakehouse attached to the notebooks.
 - Go to **Files**.
 - Select **Upload files**.
-- Upload `churn.csv` from `C:\Users\LabUser\Documents\LabFiles\Fabric\Fabric\1 - Upskilling\1 - Foundation\02 - Discovery Labs\04 - Data Science Lab`.
+- Download `churn.csv` from `https://synapseaisolutionsa.blob.core.windows.net/public/bankcustomerchurn/churn.csv`, then upload it.
 - Confirm the file appears in **Files**.
 
 **Explanation:** The bank churn dataset contains 10,000 customers with geography, gender, age, tenure, balance, salary, product count, credit card status, active member status, and `exited` churn status.
@@ -233,8 +234,7 @@
 #### Step 7: Open Data Wrangler
 
 - Wait until the notebook kernel is idle.
-- Select **Data Wrangler** from the notebook ribbon.
-- Select the pandas DataFrame `df`.
+- On the **Home** tab, open the **Data Wrangler** dropdown, then select `df`.
 - Review the generated descriptive overview.
 - Select columns to see the Summary pane update.
 
@@ -298,8 +298,7 @@
 #### Step 13: Engineer features and one-hot encode
 
 - Generate new attributes from existing fields.
-- Reopen Data Wrangler.
-- Select `df_clean`.
+- On the **Home** tab, open the **Data Wrangler** dropdown, then select `df`.
 - Expand **Formulas**.
 - Select **One-hot encode**.
 - Select `Geography` and `Gender`.
@@ -347,8 +346,8 @@
 #### Step 17: Configure MLflow tracking
 
 - Generate the experiment for model tracking and logging.
-- Set the experiment name, model parameters, and scoring metrics.
-- Enable autologging.
+- Set model parameters and scoring metrics.
+- Confirm autologging is active (Fabric enables it by default when you `import mlflow`). Set the experiment name via `mlflow.set_experiment('bank-churn-experiment')`.
 
 **Explanation:** Fabric integrates MLflow experiments and runs into the workspace so parameters, metrics, and models remain traceable.
 **Checkpoint:** The experiment named `bank-churn-experiment` is created or updated in the workspace.
@@ -408,7 +407,7 @@
 - Set the output column name to `predictions`.
 - Run the Transformer API prediction cell.
 
-**Explanation:** The SynapseML Transformer API wraps the registered MLflow model for scalable Spark batch scoring.
+**Explanation:** PREDICT with the **Transformer API** (`MLFlowTransformer`) wraps the registered MLflow model for scalable Spark batch scoring.
 **Checkpoint:** The output DataFrame includes a `predictions` column.
 
 #### Step 23: Score with Spark SQL and UDF options
@@ -505,3 +504,4 @@ France Churn = CALCULATE(AVERAGE(customer_churn_test_predictions[predictions]),F
 
 **Explanation:** The sample report demonstrates how prediction outputs can guide further investigation, not production decisions by itself.
 **Checkpoint:** The saved report highlights churn patterns by product count, geography, age, and credit score.
+

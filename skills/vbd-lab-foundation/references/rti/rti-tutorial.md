@@ -1,7 +1,9 @@
 # Fabric Foundation VBD - Real-Time Intelligence Lab Tutorial
 
 > Converted from `Real-time Intelligence Tutorial.docx` (SharePoint IP Release - Fabric Foundation Discovery Labs).
-> Screenshots have been stripped; refer to `sources.yaml` in this folder for the Microsoft Learn URLs cited throughout.
+> Screenshots have been stripped; Microsoft Learn URLs are cited inline throughout.
+
+> **Freshness-verified 2026-09-15** — Cross-checked against Microsoft Learn. Fixes applied per `.vbd/freshness-audit-2026-09-15.md`. Preview features are called out inline where relevant.
 
 ## Contents
 
@@ -109,7 +111,7 @@
 - Choose a Fabric capacity you can access.
 - Select **Apply**.
 
-**Explanation:** The workspace holds the Eventstream, Eventhouse, KQL queryset, dashboard, Activator alert, semantic model, and report.
+**Explanation:** The workspace holds the Eventstream, Eventhouse, KQL queryset, dashboard, Fabric Activator alert, semantic model, and report.
 **Checkpoint:** The `Fabric Real-time Intelligence Tutorial` workspace opens.
 
 ### Module 2: Build your first Real-time Intelligence Solution in Fabric
@@ -125,15 +127,12 @@
 
 #### Step 3: Create an Eventstream from Bicycle rentals
 
-- Select **Real-Time** in the left navigation.
-- In **Real-time hub**, select **+ Add data**.
-- Select **Sample scenarios**.
-- Select **Connect** on the **Bicycle rentals** tile.
+- Select **+ New item** > **Eventstream**.
+- Name it `TutorialEventstream`.
+- Select **Create**.
+- In the editor, select **Use sample data** > **Bicycles**.
 - Set **Source name** to `TutorialSource`.
-- In **Stream details**, rename the eventstream `TutorialEventstream`.
-- Select **Next**.
-- Review the settings.
-- Select **Connect**.
+- Select **Add**.
 
 **Explanation:** The Bicycle rentals sample provides live bike location, occupancy, and timestamp-like data without requiring an external source.
 **Checkpoint:** `TutorialEventstream` is created from `TutorialSource`.
@@ -164,7 +163,7 @@
 - Select the green plus icon.
 - Select **Destinations** > **Eventhouse**.
 - Open the pencil icon on the new Eventhouse tile.
-- Set **Data ingestion mode** to **Event processing before ingestion**.
+- Set **Ingestion mode** to **Event processing before ingestion**.
 - Set **Destination name** to `TutorialDestination`.
 - Select the lab workspace.
 - Set **Eventhouse** to `Tutorial`.
@@ -417,7 +416,7 @@ RawData
 - Set **New item name** to `Tutorial`.
 - Select **Create**.
 
-**Explanation:** The alert turns streaming conditions into Teams notifications when bike availability drops below the threshold.
+**Explanation:** Set alert creates a **Fabric Activator** item. Modern practice: define Activator objects and rules explicitly (rule example: `No_Bikes < 5` grouped by `BikepointID`).
 **Checkpoint:** The alert is created and sends a Teams notification when the condition is met.
 
 ### Module 3: Clean up resources

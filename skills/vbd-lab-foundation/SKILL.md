@@ -20,32 +20,34 @@ Regenerate the SharePoint Foundation Discovery Labs against the customer's data 
 
 | # | Lab | Reference | Data comes from | Tech taught |
 |---|---|---|---|---|
-| 01 | **Lakehouse** | `references/lakehouse/lakehouse-tutorial.md` | `data/*.csv` + WWI zip via fetch script | Lakehouse, OneLake, shortcuts, Delta, Spark, SQL endpoint |
+| 01 | **Lakehouse** | `references/lakehouse/lakehouse-tutorial.md` | `data/*.csv` (CSA supplies WWI-shaped Parquet if needed) | Lakehouse, OneLake, shortcuts, Delta, Spark, SQL endpoint |
 | 02 | **Warehouse** | `references/warehouse/warehouse-tutorial.md` | Lakehouse output (Lab 01) | Warehouse, T-SQL, stored procs, semantic model |
 | 03 | **RTI** | `references/rti/rti-tutorial.md` | Fabric built-in sample streams | Eventstream, Eventhouse, KQL, real-time dashboard, Activator |
 | 04 | **Data Science** | `references/datascience/datascience-tutorial.md` | `data/*.csv` (customer regression/classification target) | Notebooks, MLflow, batch scoring, semantic link |
 
 ## Authoring loop — one pass per included lab
 
-1. **Load the reference tutorial** at `references/<lab>/<lab>-tutorial.md` and its `sources.yaml`. Extract objectives, step order, checkpoints, and every code snippet + Learn citation.
+1. **Load the reference tutorial** at `references/<lab>/<lab>-tutorial.md`. Extract objectives, step order, checkpoints, code snippets, and every Microsoft Learn URL cited inline.
 2. **Load `templates/lab-readme.md`** and populate the header from `workshop.yaml` + `data/README.md`.
 3. **Re-skin each step** — keep the objective, order, and Fabric operation; swap WWI/taxi names for the customer's entity names (e.g. `fact_sale` → `fact_claim`, `dimension_customer` → `dimension_member`). Preserve every Learn URL.
-4. **If the lab needs a big download**, prepend a **Step 0 — Download the sample data** block (both PowerShell and Bash), pointing at `data/fetch-data.ps1` / `.sh`. Only Lakehouse needs this today (1.9 GB WWI zip); Warehouse and RTI don't.
-5. **Add exercise + solution notebooks** — TODOs in the exercise, mirrored solutions in `solutions/` (only shipped if `deliverable.include_solutions=true`).
-6. **Freshness gate — mandatory.** Call `components/freshness.verify(draft)` before writing. Every feature name, UI path, KQL/SQL snippet, and REST endpoint is validated against Microsoft Learn. Preview features get a preview banner; deprecated features are rewritten; anything unresolved after 3 attempts becomes a TODO with a citation.
-7. **Emit `.vbd/freshness-foundation.yaml`** — machine-readable verification report.
+4. **If the lab needs sample data**, prepend a **Step 0 — Get the sample data** block pointing at the customer CSVs in `data/`. For the **Lakehouse lab specifically**, the reference uses the WWI Parquet dataset (large, external). Tell the CSA to source an equivalent Parquet sample for the customer's industry or reuse the `data/*.csv` files loaded via **Get data → Upload files**. No download URLs — the old WWI zip URL is dead and Fabric moves too fast to keep pinning replacements.
+5. **RTI lab — add a data-generator notebook.** The RTI reference lab uses the Bicycles built-in stream. For the customer, that's rarely relevant. Generate an additional `notebooks/00-generate-stream.ipynb` in the lab folder that:
+   - Reads `workshop.yaml.customer.industry` and a scenario hint from `workshop.yaml.rti.scenario` (e.g. "claim events", "IoT temperature", "trade ticks").
+   - Uses `time.sleep()` + `random`/`faker` to produce ~1 event/second matching the customer's fact-table schema.
+   - Posts events to the Eventstream custom endpoint (HTTPS `POST`) via `requests`. The endpoint URL and key are placeholders the learner fills in after creating the Eventstream in Step 1 of the lab.
+   - Includes a 3-line "why this notebook exists" markdown cell up top and a stop-cell at the bottom.
+6. **Add exercise + solution notebooks** — TODOs in the exercise, mirrored solutions in `solutions/` (only shipped if `deliverable.include_solutions=true`).
+7. **Freshness gate — mandatory.** Call `components/freshness.verify(draft)` before writing. Grep every Learn URL from the reference tutorial + the draft and re-verify against `learn.microsoft.com` at generation time. Every UI path, KQL/SQL snippet, and REST endpoint is validated. Preview features get a preview banner; deprecated features are rewritten; anything unresolved after 3 attempts becomes a TODO with a citation.
+8. **Emit `.vbd/freshness-foundation.yaml`** — machine-readable verification report.
 
-## Sample "Step 0 — Download the sample data" block
+## Sample "Step 0 — Get the sample data" block
 
 ```markdown
-## Step 0 — Download the sample data
+## Step 0 — Get the sample data
 
-Grab the ~1.9 GB workshop dataset before you start:
-
-- **PowerShell:** `./data/fetch-data.ps1`
-- **Bash:** `./data/fetch-data.sh`
-
-Safe to re-run — the script skips the download if the zip is already there.
+- The CSV files for this lab are in `data/` at the repo root.
+- Upload them to your Lakehouse **Files** area, or point a Copy pipeline at wherever your CSA hosted them.
+- If the lab needs the Wide World Importers Parquet sample, ask your CSA — the public download URL retired in 2025.
 ```
 
 ## Style rules for generated labs
@@ -54,7 +56,7 @@ Modelled on [ineslantero/fabric-training-cmi/labs](https://github.com/ineslanter
 
 1. **Objective** — 4–8 bullets, one capability each ("Create a Fabric Lakehouse", "Query tables through the SQL analytics endpoint").
 2. **Why this matters for {customer.name}** — 4–7 bullets connecting each capability to the customer's business ("OneLake gives {customer} a shared data layer for actuarial modelling"). *Never* say "in this lab, we will…".
-3. **Microsoft Learn references** — flat bullet list at the top of the lab, not scattered under each step. Pull these straight from `references/<lab>/sources.yaml`.
+3. **Microsoft Learn references** — flat bullet list at the top of the lab, not scattered under each step. Grep them from the reference tutorial (`references/<lab>/<lab>-tutorial.md`) and re-verify each URL via `components/freshness` before shipping.
 4. **Prerequisites** — Fabric access, capacity, permissions, and the exact CSV files the lab uses (path: `data/<file>.csv`).
 5. **Data setup options** *(from Lab 02 onwards, so labs are replayable)*:
    - Option A — you already have the tables loaded from a prior lab

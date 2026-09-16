@@ -1,7 +1,9 @@
 # Fabric Foundation VBD - Lakehouse Lab Tutorial
 
 > Converted from `Lakehouse Tutorial.docx` (SharePoint IP Release - Fabric Foundation Discovery Labs).
-> Screenshots have been stripped; refer to `sources.yaml` in this folder for the Microsoft Learn URLs cited throughout.
+> Screenshots have been stripped; Microsoft Learn URLs are cited inline throughout.
+
+> **Freshness-verified 2026-09-15** — Cross-checked against Microsoft Learn. Fixes applied per `.vbd/freshness-audit-2026-09-15.md`. Preview features are called out inline where relevant.
 
 ## Contents
 
@@ -37,7 +39,7 @@
 - Load the Wide World Importers sample files into OneLake.
 - Transform raw Parquet files into Delta tables.
 - Create aggregate tables with PySpark and Spark SQL.
-- Add Lakehouse tables to the default semantic model.
+- Create explicit Power BI semantic models for Lakehouse tables.
 - Build and save a Power BI report from DirectLake data.
 
 ## Microsoft Learn references
@@ -48,7 +50,6 @@
 - https://learn.microsoft.com/en-us/sql/samples/wide-world-importers-what-is?view=sql-server-ver16
 - https://app.fabric.microsoft.com/
 - https://powerbi.com/
-- https://assetsprod.microsoft.com/en-us/wwi-sample-dataset.zip
 - https://learn.microsoft.com/en-us/azure/synapse-analytics/spark/optimize-write-for-apache-spark
 
 ## Modules
@@ -62,7 +63,7 @@
 - Name the workspace `Fabric Lakehouse Tutorial` plus a unique suffix.
 - Optionally add a description.
 - Expand **Advanced**.
-- Select **Trial**, **Fabric capacity**, or **Power BI Premium capacity** as available.
+- Under **License mode**, select **Trial** or **Fabric capacity** and pick a capacity you can access.
 - Select **Apply**.
 
 **Explanation:** The workspace contains the lakehouse, dataflows, pipelines, notebooks, semantic models, and reports for the lab.
@@ -76,7 +77,7 @@
 - Select **New item**.
 - Select **Lakehouse** under **Store data**.
 - Enter `wwilakehouse` as the name.
-- Leave **Lakehouse schemas** unchecked if the option appears.
+- Keep **Lakehouse schemas** checked (default). Tables will be created under the `dbo` schema.
 - Select **Create**.
 
 **Explanation:** `wwilakehouse` is the central OneLake item for raw files, Delta tables, notebook work, SQL endpoint queries, and DirectLake reporting.
@@ -118,18 +119,18 @@
 SELECT BuyingGroup, Count(*) AS Total FROM dimension_customer GROUP BY BuyingGroup
 ```
 
-- Open the **Reporting** tab.
-- Select **Manage default semantic model**.
-- Add `dimension_customer` to the default semantic model.
+- From the Lakehouse ribbon, select **New Power BI semantic model**.
+- Name it `wwilakehouse_model`.
+- Select `dimension_customer`.
 - Select **Confirm**.
 
-**Explanation:** The SQL analytics endpoint exposes Lakehouse tables through T-SQL for quick validation. Adding the table to the semantic model makes it available to Power BI.
-**Checkpoint:** The query returns totals by `BuyingGroup`, and `dimension_customer` is selected in the semantic model.
+**Explanation:** The SQL analytics endpoint exposes Lakehouse tables through T-SQL for quick validation. Since Sept 2025, Fabric no longer auto-creates default semantic models — you now create them explicitly.
+**Checkpoint:** The query returns totals by `BuyingGroup`, and `dimension_customer` is included in `wwilakehouse_model`.
 
 #### Step 5: Build the quick customer report
 
 - Return to the workspace item view.
-- Open the `wwilakehouse` default semantic model.
+- Open the `wwilakehouse_model` semantic model.
 - Select **Explore this data** > **Auto-create a report**.
 - Review the generated visuals.
 - Select **Save**.
@@ -143,33 +144,17 @@ SELECT BuyingGroup, Count(*) AS Total FROM dimension_customer GROUP BY BuyingGro
 #### Step 6: Create the ingestion pipeline
 
 - Return to the `Fabric Lakehouse Tutorial` workspace.
-- Select **New item** > **Data pipeline**.
-- Name the pipeline `IngestDataFromSourceToLakehouse`.
-- Select **Create**.
-- Select **Copy Data Assistant**.
-- Choose **HTTP** as the source.
-- Configure the source URL `https://assetsprod.microsoft.com/en-us/wwi-sample-dataset.zip`.
-- Create a connection named `wwisampledata`.
-- Set **Data gateway** to **None**.
-- Set **Authentication kind** to **Anonymous**.
-- Enable **Binary copy**.
-- Set **Compression type** to **ZipDeflate (.zip)**.
-- Choose the `wwilakehouse` destination from OneLake data hub.
-- Set **Root folder** to **Files**.
-- Set destination **File format** to **Binary**.
-- Select **Save + Run**.
-- Monitor the **Output** tab until the activity succeeds.
-- Open `wwilakehouse`.
-- Refresh the explorer.
-- Rename the generated GUID folder to `wwi-raw-data`.
+- The customer needs the Wide World Importers sample dataset (WWI Parquet files). Ask the CSA to supply an equivalent sample dataset for the customer's industry, or point the pipeline at any Parquet source with a fact table and 4-5 dimensions matching `data/README.md`.
+- Load `data/*.csv` into the Lakehouse Files section via **Get data → Upload files** or a Copy pipeline pointed at wherever the CSA hosted the sample.
+- If using WWI Parquet files, keep the folder path as `Files/wwi-raw-data/WideWorldImportersDW`.
+- Open `wwilakehouse` and refresh the explorer.
 
-**Explanation:** The pipeline copies the complete Wide World Importers sample once into the Lakehouse **Files** area. Renaming the folder gives the notebooks a stable path.
+**Explanation:** The files provide the raw source for the notebook transformations. Keeping a stable folder path lets the later cells run unchanged.
 **Checkpoint:** `Files/wwi-raw-data/WideWorldImportersDW` exists in `wwilakehouse`.
 
 #### Step 7: Import and open the Delta table notebook
 
 - Download the notebooks from the lab **Scripts** folder.
-- Switch to the **Data engineering** workload.
 - Select **Import notebook**.
 - Select **Upload** in the **Import status** pane.
 - Upload all downloaded notebooks.
@@ -280,10 +265,11 @@ sale_by_date_employee.write.mode("overwrite").format("delta").option("overwriteS
 - Open `wwilakehouse`.
 - Switch to **SQL analytics endpoint**.
 - Refresh if the tables are not visible.
-- Open the **Model** view.
-- Select **Reporting** > **Manage default semantic model**.
+- From the Lakehouse ribbon, select **New Power BI semantic model**.
+- Name it `wwilakehouse_reporting_model`.
 - Select every table.
 - Select **Confirm**.
+- Open the **Model** view.
 - Drag `fact_sale.CityKey` to `dimension_city.CityKey`.
 - Set **Cardinality** to **Many to one (*:1)**.
 - Set **Cross filter direction** to **Single**.
@@ -296,7 +282,7 @@ sale_by_date_employee.write.mode("overwrite").format("delta").option("overwriteS
   - `CustomerKey` from `fact_sale` to `dimension_customer.CustomerKey`
   - `InvoiceDateKey` from `fact_sale` to `dimension_date.Date`
 
-**Explanation:** Relationships turn separate Lakehouse tables into a model that Power BI can navigate correctly.
+**Explanation:** Since Sept 2025, Fabric no longer auto-creates default semantic models — you now create them explicitly. Relationships turn separate Lakehouse tables into a model Power BI can navigate.
 **Checkpoint:** The model shows fact-to-dimension relationships for city, stock item, employee, customer, and date.
 
 #### Step 14: Build the Power BI report
@@ -312,7 +298,7 @@ sale_by_date_employee.write.mode("overwrite").format("delta").option("overwriteS
 - Name the report `Profit Reporting`.
 - Select **Save**.
 
-**Explanation:** DirectLake lets Power BI analyze the Lakehouse files directly without importing or duplicating the data.
+**Explanation:** Direct Lake mode analyzes Delta tables in OneLake directly, without importing data.
 **Checkpoint:** The `Profit Reporting` report is saved in the workspace.
 
 ### Module 4: Clean up resources
