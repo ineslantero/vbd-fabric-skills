@@ -33,9 +33,26 @@ Parse the transcript into these buckets. If any are missing, ask the CSA rather 
 - Duration (days) and delivery mode.
 - Data availability (will customer share data? Anonymised? Synthetic only?).
 
-## Step 3 — Score the Foundation labs
+## Step 3 — Score the candidate labs
 
-**Scope: Foundation VBD only for now.** Ignore the other VBDs (Lakehouse-as-its-own-VBD, Data Factory, Warehouse-as-its-own-VBD, Security, Power BI standalone) — they'll get their own scoring passes when their skills exist.
+**Two modules exist today: Foundation and Security.** Ignore the other VBDs (Lakehouse-as-its-own-VBD, Data Factory, Warehouse-as-its-own-VBD, Power BI standalone) — they'll get their own scoring passes when their skills exist.
+
+Decide **which module** first, then score its labs.
+
+> **Rule of thumb:** Foundation teaches people to *build*; Security reviews what they have *already built*.
+> A customer with several use cases already in production will score 0–1 on every Foundation lab — when
+> that happens you are looking at the wrong module, not at a customer with no needs.
+
+### 3a — Module selection
+
+| Signal in the transcript | Module |
+|---|---|
+| Green-field, migrating off Synapse/Databricks, "we need to learn Fabric" | `foundation` |
+| Production estate, "is our setup still right", baselines drifted, onboarding partners, catalogue adoption stalled | `security` |
+| Audience is data engineers, analysts, data scientists | `foundation` |
+| Audience is platform engineering, security, governance, tenant admins | `security` |
+
+### 3b — Foundation Discovery Labs
 
 For each of the **4 Foundation Discovery Labs**, score relevance 0–5 against the extracted objectives and stack. Show the CSA your reasoning per lab (per user preference) before writing anything.
 
@@ -46,7 +63,16 @@ For each of the **4 Foundation Discovery Labs**, score relevance 0–5 against t
 | `rti` | Eventstream, Eventhouse, KQL, real-time dashboards, alerts | Objectives around streaming, IoT, near-real-time analytics, anomaly detection |
 | `datascience` | Data Wrangler, MLflow, model training, batch scoring, semantic link | Objectives around ML, feature engineering, model ops on Fabric |
 
-Output a table with `lab | score | rationale | include?`. Any lab scored ≥ 3 is included by default; the CSA can override.
+### 3c — Security / Platform & Governance labs
+
+| Lab | What it covers | Score against |
+|---|---|---|
+| `admin-tenant-settings` | Admin portal, tenant settings, delegation, domains, admin monitoring, admin APIs | Objectives around tenant configuration, governing the estate, configuration drift |
+| `security-workspace-to-column` | Workspace roles, item permissions, OneLake security, RLS, CLS, masking, enforcement boundary | Objectives around access model, "who can see what", security baseline review |
+| `partner-access` | Entra B2B, external data sharing, groups, service principals, access review and revocation | Objectives around contractors, delivery partners, external collaboration, offboarding |
+| `governance-catalogue` | Endorsement, lineage, sensitivity labels, Purview Unified Catalog, scanning | Objectives around cataloguing, classification, discoverability, stalled governance adoption |
+
+Output a table with `lab | score | rationale | include?`. Any lab scored ≥ 3 is included by default; the CSA can override. **Record excluded labs with a `reason` in `workshop.yaml`** — being explicit about what was deliberately left out is as valuable to the customer as what was included.
 
 ## Step 4 — Draft the plan
 
@@ -79,7 +105,9 @@ If anything comes back `outdated` or `deprecated`, surface it to the CSA before 
 
 Once freshness passes (or the CSA acknowledges the flags), invoke in sequence:
 1. `/vbd-data` (reads `data_strategy`)
-2. `/vbd-lab-foundation` — generates the selected Foundation labs (lakehouse / warehouse / rti / datascience)
+2. The lab skill for the module selected in Step 3a:
+   - `/vbd-lab-foundation` — Foundation labs (lakehouse / warehouse / rti / datascience)
+   - `/vbd-lab-security` — Security labs (admin / access model / partner access / governance)
 3. `/vbd-repo-build`
 
 ## Guardrails

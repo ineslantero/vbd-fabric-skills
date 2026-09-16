@@ -28,9 +28,21 @@ sources:
 
   - id: known-issues-fabric
     kind: html
-    base: https://learn.microsoft.com/fabric/fundamentals/known-issues
+    base: https://support.fabric.microsoft.com/known-issues/
     priority: 3
-    notes: Active bugs. Add workaround notes when a lab step hits one.
+    notes: >-
+      Active bugs. Add workaround notes when a lab step hits one.
+      NOTE: this list moved off Microsoft Learn. The former
+      https://learn.microsoft.com/fabric/fundamentals/known-issues returns 404.
+
+  - id: learn-purview
+    kind: html
+    base: https://learn.microsoft.com/purview
+    priority: 1
+    notes: >-
+      Purview product docs. Required for catalogue, data map, sensitivity label and
+      audit-retention claims, which live outside the /fabric doc tree. Purview surfaces
+      are renamed frequently - always confirm the current product name.
 
   - id: fabric-blog
     kind: html
