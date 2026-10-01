@@ -11,3 +11,6 @@ Key rules:
 - Every claim must cite Microsoft Learn or the Fabric roadmap via `components/freshness`.
 - Never push to GitHub without explicit CSA approval.
 - Agenda uses bullets with one-sentence rationale per item.
+- Map each module to explain, demonstrate, practise, check and debrief; include exact lab step ranges, observable learner evidence and time for setup/practice/cleanup.
+- Distinguish demonstration, hands-on and offline routes, with feature-specific prerequisites and a standalone replay path.
+- Ground procedures in current Microsoft Learn pages and relevant verified Microsoft blog context. The freshness component is a review workflow, not an implemented API or proof of tenant execution.

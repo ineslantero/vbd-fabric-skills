@@ -1,5 +1,5 @@
 # Microsoft Fabric documentation sources used by the freshness verifier.
-# Add a new source by dropping a resolver under resolvers/ and appending here.
+# Source registry for manual/tool-assisted review; no resolver API is implemented.
 
 sources:
   - id: learn-fabric
@@ -15,10 +15,10 @@ sources:
     notes: REST API reference.
 
   - id: roadmap-fabric
-    kind: json
+    kind: html
     base: https://roadmap.fabric.microsoft.com
     priority: 2
-    notes: Public roadmap. Used to gate preview/coming-soon features.
+    notes: Public roadmap context; not proof of tenant availability or a documented JSON feed.
 
   - id: whats-new-fabric
     kind: html
@@ -36,4 +36,4 @@ sources:
     kind: html
     base: https://blog.fabric.microsoft.com
     priority: 4
-    notes: Announcements. Lower trust than Learn — use only for context, not as sole citation.
+    notes: Dated Microsoft examples and design context. Verify relevant posts; cross-check procedures and availability against Learn, never use as the sole operational citation.

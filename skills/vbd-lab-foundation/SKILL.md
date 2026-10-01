@@ -1,83 +1,80 @@
 ---
 name: vbd-lab-foundation
-description: Author the 4 Fabric Foundation Discovery Labs (Lakehouse, Warehouse, RTI, Data Science) tailored to the customer in workshop.yaml.
+description: Author practical Fabric Foundation Discovery Labs (Lakehouse, Warehouse, RTI, Data Science) with source-backed procedures, runnable exercises and completion evidence.
 inputs:
   - workshop.yaml
   - data/ (from /vbd-data)
 outputs:
   - labs/01-lakehouse/     README + notebooks
   - labs/02-warehouse/     README + T-SQL scripts
-  - labs/03-rti/           README + KQL + eventstream config
-  - labs/04-datascience/   README + 4 notebooks (ingest, explore, train, predict)
+  - labs/03-rti/           README + KQL + optional event generator
+  - labs/04-datascience/   README + ingest, explore, train and predict notebooks
   - .vbd/freshness-foundation.yaml
 ---
 
 # /vbd-lab-foundation
 
-Regenerate the SharePoint Foundation Discovery Labs against the customer's data and industry angle. **You never invent lab structure** — you re-skin the reference tutorial for each lab.
+Use the reference tutorials as a starting curriculum, not as current procedural authority. Preserve the intended learning outcomes; replace obsolete UI, code and dependencies with verified Microsoft Learn procedures. A lab is not complete if it merely tells learners to "configure", "explore" or "discuss" a feature without showing how.
 
-## The 4 labs
+## Resolve resources
 
-| # | Lab | Reference | Data comes from | Tech taught |
-|---|---|---|---|---|
-| 01 | **Lakehouse** | `references/lakehouse/lakehouse-tutorial.md` | `data/*.csv` (CSA supplies WWI-shaped Parquet if needed) | Lakehouse, OneLake, shortcuts, Delta, Spark, SQL endpoint |
-| 02 | **Warehouse** | `references/warehouse/warehouse-tutorial.md` | Lakehouse output (Lab 01) | Warehouse, T-SQL, stored procs, semantic model |
-| 03 | **RTI** | `references/rti/rti-tutorial.md` | Fabric built-in sample streams | Eventstream, Eventhouse, KQL, real-time dashboard, Activator |
-| 04 | **Data Science** | `references/datascience/datascience-tutorial.md` | `data/*.csv` (customer regression/classification target) | Notebooks, MLflow, batch scoring, semantic link |
+`references/` is relative to this skill directory. `templates/` and `components/` are relative to the vbd-fabric-skills repository root (two levels above this skill's real directory). When installed through a link, resolve the link target first. Do not look for shared resources in the customer's repository or invent missing helper APIs.
 
-## Authoring loop — one pass per included lab
+## The four labs
 
-1. **Load the reference tutorial** at `references/<lab>/<lab>-tutorial.md`. Extract objectives, step order, checkpoints, code snippets, and every Microsoft Learn URL cited inline.
-2. **Load `templates/lab-readme.md`** and populate the header from `workshop.yaml` + `data/README.md`.
-3. **Re-skin each step** — keep the objective, order, and Fabric operation; swap WWI/taxi names for the customer's entity names (e.g. `fact_sale` → `fact_claim`, `dimension_customer` → `dimension_member`). Preserve every Learn URL.
-4. **If the lab needs sample data**, prepend a **Step 0 — Get the sample data** block pointing at the customer CSVs in `data/`. For the **Lakehouse lab specifically**, the reference uses the WWI Parquet dataset (large, external). Tell the CSA to source an equivalent Parquet sample for the customer's industry or reuse the `data/*.csv` files loaded via **Get data → Upload files**. No download URLs — the old WWI zip URL is dead and Fabric moves too fast to keep pinning replacements.
-5. **RTI lab — add a data-generator notebook.** The RTI reference lab uses the Bicycles built-in stream. For the customer, that's rarely relevant. Generate an additional `notebooks/00-generate-stream.ipynb` in the lab folder that:
-   - Reads `workshop.yaml.customer.industry` and a scenario hint from `workshop.yaml.rti.scenario` (e.g. "claim events", "IoT temperature", "trade ticks").
-   - Uses `time.sleep()` + `random`/`faker` to produce ~1 event/second matching the customer's fact-table schema.
-   - Posts events to the Eventstream custom endpoint (HTTPS `POST`) via `requests`. The endpoint URL and key are placeholders the learner fills in after creating the Eventstream in Step 1 of the lab.
-   - Includes a 3-line "why this notebook exists" markdown cell up top and a stop-cell at the bottom.
-6. **Add exercise + solution notebooks** — TODOs in the exercise, mirrored solutions in `solutions/` (only shipped if `deliverable.include_solutions=true`).
-7. **Freshness gate — mandatory.** Call `components/freshness.verify(draft)` before writing. Grep every Learn URL from the reference tutorial + the draft and re-verify against `learn.microsoft.com` at generation time. Every UI path, KQL/SQL snippet, and REST endpoint is validated. Preview features get a preview banner; deprecated features are rewritten; anything unresolved after 3 attempts becomes a TODO with a citation.
-8. **Emit `.vbd/freshness-foundation.yaml`** — machine-readable verification report.
+| Lab | Reference | Input and output |
+|---|---|---|
+| Lakehouse | `references/lakehouse/lakehouse-tutorial.md` | Repository CSVs -> Files -> Delta tables -> Spark and SQL checks |
+| Warehouse | `references/warehouse/warehouse-tutorial.md` | Documented Lakehouse tables -> Warehouse tables/views -> repeatable SQL result |
+| RTI | `references/rti/rti-tutorial.md` | Verified built-in sample or bounded synthetic source -> Eventhouse table -> KQL result/dashboard |
+| Data Science | `references/datascience/datascience-tutorial.md` | Synthetic fact/dim inputs -> split/train/evaluate -> tracked run -> scored rows |
 
-## Sample "Step 0 — Get the sample data" block
+## Authoring loop
 
-```markdown
-## Step 0 — Get the sample data
+1. Read the approved `workshop.yaml`, data README and actual input files. Map the selected module's teaching outcome, learning route and time budget to a concrete output artifact.
+2. Read its reference tutorial and `templates/lab-readme.md`. Identify old assumptions and external dependencies. Do not copy reference sample rows, private scoping details or obsolete download links.
+3. Use `components/freshness/README.md` to review current public Learn procedures and relevant Microsoft blog examples. This is a documented workflow, not an implemented `freshness.verify()` call. Record sources and what they support; source review is not runtime execution.
+4. Establish the starting state: workspace role, item permissions, feature-specific capacity/licence/region/settings, input files, expected schema, learner-specific names and an explicit readiness check. Never assume a trial enables every AI feature. Separate administrator setup from learner steps.
+5. Include a complete Step 0 for ingestion. Show where to download or find each repository file, the Files destination, exact load action/code, table names/types and row-count check. If a previous lab provides the input, offer a precise standalone bootstrap route; do not say "load the tables" without instructions.
+6. Write the end-to-end **How to do it** sequence. Every step needs the persona, UI surface or notebook kernel/SQL endpoint, exact navigation and field values, runnable code where relevant, expected output, a validation action, a failure/recovery hint and a nearby Learn citation. Explain why after the action. Use screenshots only as a supplement.
+7. Add an independent **Your turn** exercise: change a filter, column, relationship, model setting or threshold; predict its effect; run it; compare evidence with explicit acceptance criteria. Include a hint. Worked code must execute end-to-end; clearly mark exercise TODOs and never leave them in prerequisite/bootstrap code.
+8. Add bounded execution and safe rerun/cleanup instructions. Describe overwrite/append behaviour, stop streams and Spark sessions, undo only exercise-specific grants and remove only learner-owned items. No production mutations, live external recipients, committed credentials or implicit paid-capacity creation.
+9. Reconcile the course: the plan's explain -> demonstrate -> practise -> check -> debrief sequence links to the actual lab step ranges, and the time budget includes setup, practice and cleanup. Put over-budget extensions in the self-paced route instead of quietly extending the taught day.
+10. Review all snippets against real repository column/table names and public documentation. Run existing local checks if available; only run Fabric workloads with explicit permission and a suitable environment. Mark execution as not-run when unavailable. Required unresolved steps block a runnable-ready claim.
+11. Emit a source/evidence report following the freshness contract and provide a publishable `FRESHNESS.md` rollup through `/vbd-repo-build`. The lab footer links to that shipped file, not a private `.vbd` audit file.
 
-- The CSV files for this lab are in `data/` at the repo root.
-- Upload them to your Lakehouse **Files** area, or point a Copy pipeline at wherever your CSA hosted them.
-- If the lab needs the Wide World Importers Parquet sample, ask your CSA — the public download URL retired in 2025.
-```
+## Workload-specific procedure checks
 
-## Style rules for generated labs
+### Lakehouse and Warehouse
 
-Modelled on [ineslantero/fabric-training-cmi/labs](https://github.com/ineslantero/fabric-training-cmi/tree/master/labs) — concise, engaging, action-first. Every lab follows the same skeleton (see `templates/lab-readme.md`):
+- State when code runs in a Spark notebook, SQL analytics endpoint or Warehouse query editor; these are not interchangeable execution surfaces.
+- Map file columns to exact table names and data types. Show a count and a known aggregate/join result with a deterministic expected value or an explained tolerance.
+- Specify schemas explicitly where supported and show how to locate the resulting object. Cross-item queries must name prerequisites and permissions.
+- Security exercises use an actual least-privileged identity for allow/deny tests. A workspace administrator seeing rows does not prove row-level security works for a viewer.
 
-1. **Objective** — 4–8 bullets, one capability each ("Create a Fabric Lakehouse", "Query tables through the SQL analytics endpoint").
-2. **Why this matters for {customer.name}** — 4–7 bullets connecting each capability to the customer's business ("OneLake gives {customer} a shared data layer for actuarial modelling"). *Never* say "in this lab, we will…".
-3. **Microsoft Learn references** — flat bullet list at the top of the lab, not scattered under each step. Grep them from the reference tutorial (`references/<lab>/<lab>-tutorial.md`) and re-verify each URL via `components/freshness` before shipping.
-4. **Prerequisites** — Fabric access, capacity, permissions, and the exact CSV files the lab uses (path: `data/<file>.csv`).
-5. **Data setup options** *(from Lab 02 onwards, so labs are replayable)*:
-   - Option A — you already have the tables loaded from a prior lab
-   - Option B — start fresh: create workspace + Lakehouse + upload CSVs + load to tables
-6. **Sample data** — one h3 per CSV file with a one-line description and a flat `Fields:` list.
-7. **Lab steps** — `### Step N: <Verb> <Object>`. Each step is bullets, one action per bullet, imperative mood. Code blocks for SQL/Python where useful. Optional short **Explanation:** paragraph at the end of a step (never before). Optional **Checkpoint:** line the learner can verify.
-8. **Troubleshooting** — 3–6 `**symptom** → fix` bullets.
-9. **What's next** — one sentence pointing at the next lab.
+### RTI
 
-### Voice
+Use the verified built-in sample as the low-setup route. If a customer-relevant generator is needed, make it an optional bounded extension:
 
-- **Second person imperative.** "Open Microsoft Fabric", "Go to Workspaces", "Select New item". Never "we will now open…".
-- **One action per bullet.** No compound sentences.
-- **No filler.** Cut "In this section", "As you can see", "Let's now", "We're going to". If a sentence can be removed without losing meaning, remove it.
-- **Show, don't tell.** Every conceptual claim gets a code block, a link, or a checkpoint — never both a claim and a hedge.
-- **Explanations come last.** After the actions, one short paragraph telling the learner *why* what they just did matters. Prefix with `**Explanation:**`.
+- Check the [custom endpoint source documentation](https://learn.microsoft.com/fabric/real-time-intelligence/event-streams/add-source-custom-app) and follow the supported protocol, authentication and sample code for the endpoint actually configured. Do not assume an arbitrary `requests.post()` to a copied endpoint with a key is supported.
+- Explain source creation, publish, destination mapping and where connection information is found. Read secrets at runtime from an approved store or an interactive prompt; never save them in notebooks or outputs.
+- Use a fixed seed, finite event count, explicit pacing and a cancellation method that works while the loop is running. A later notebook "stop cell" cannot interrupt a busy synchronous cell.
+- Demonstrate a KQL count/time-range check, one learner filter change and how to stop the producer and clean up exercise destinations. Do not enable alert delivery or invite recipients without approval.
 
-### Naming convention for items the learner creates
+### Data Science
 
-Use `{{customer.slug}}_lab{{N}}_<item>_name` so no two attendees clash — e.g. `contoso_lab01_lh_name` for a Lakehouse. This mirrors the CMI labs and works well in shared training workspaces.
+- Name the target and input types; use a deterministic split without target leakage, include a baseline and evaluate on held-out data.
+- Specify runtime/library requirements from current docs, where to run each cell, how to inspect the MLflow run and how to compare scored row counts.
+- Show expected output shape and a reasonable metric condition, not an invented exact stochastic score. Use a fixed seed; record any remaining variability.
+
+## Required lab shape
+
+Populate every required section in `templates/lab-readme.md`: outcome and route, why, prerequisites, data/dependencies, numbered procedure, independent exercise, troubleshooting, cleanup/rerun, completion evidence and sources. Every step's checkpoint is mandatory. A source list at the end supplements but never replaces step-linked citations.
+
+Preserve accessible language: imperative verbs, one action per numbered instruction, short explanations after actions. Keep enough detail for an unfamiliar learner to reproduce the result without the trainer's unstated knowledge.
+
+Use a learner-specific safe prefix, for example `contoso_lab01_lh_<alias>`; clearly replace `<alias>` before execution. Never overwrite a shared object to avoid a name collision.
 
 ## Exit
 
-Print: labs authored, freshness report location, and any TODOs the CSA must resolve manually before shipping.
+Report labs and course sections updated, source-review date, execution status, unresolved blockers and the location of the evidence rollup. Distinguish executed, observed, offline and blocked outcomes; do not claim tenant execution from a successful documentation fetch.

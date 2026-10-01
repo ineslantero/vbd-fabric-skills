@@ -7,6 +7,7 @@ Design record for the reusable Fabric VBD skill family. See [`../README.md`](../
 - **Skill** — instruction set + helpers Scout/Copilot load on demand (`/skill-name`). The verb.
 - **Template** — static file with placeholders. The shape.
 - **Component** — helper library that multiple skills import. The plumbing.
+- **Practical learning contract** — the course's worked example and learner task must map to a reproducible lab, expected result and evidence, not just to a topic name.
 
 ## Skills
 
@@ -26,9 +27,9 @@ Design record for the reusable Fabric VBD skill family. See [`../README.md`](../
 
 ## Components
 
-- `components/freshness/` — **mandatory verification gate**. Learn + roadmap + release notes + known issues + REST reference.
+- `components/freshness/` — **mandatory source-review workflow**. Learn procedures + relevant Microsoft blogs + roadmap/release notes/known issues/REST reference. It contains instructions and a source registry, not executable verification functions.
 - `components/transcript-loader/` — normalises paste / WorkIQ / email into `.vbd/transcript.md`.
-- `components/data-gen/` — industry-aware synthetic data generator.
+- `components/data-gen/` — proposed extension; generation currently follows `/vbd-data` instructions, not an implemented helper library.
 - `components/fabric-api/` — optional Fabric REST wrappers (future).
 
 ## Flow
@@ -46,7 +47,11 @@ transcript ─► /vbd-plan ─► workshop.yaml ───┼─► /vbd-data �
 
 ## Freshness — the whole point
 
-Every generated artefact carries a verification footer and cites Microsoft Learn or the Fabric public roadmap. Preview features get banners; deprecated features are rewritten or excluded. The verifier is called by every skill — not optional.
+Every generated artifact records its source-review date and execution status separately. Cite Microsoft Learn beside operational steps and use verified Microsoft blogs for dated context. Preview features carry access constraints; deprecated instructions are replaced or excluded. A roadmap date does not prove tenant availability. No `freshness.verify()` function or resolver package is implemented: every skill follows the review workflow with available browsing tools.
+
+`templates/workshop.yaml` now carries per-module `teaching` and `learning` metadata: concept, worked example, learner task, evidence, debrief, route, setup/role requirements, artifact, timed practice, fallback and cleanup. New courses populate all fields; older courses are upgraded explicitly. The six learning time components sum to the module duration. Demonstrations and offline alternatives are not counted as Fabric execution.
+
+`templates/lab-readme.md` renders the matching how-to contract. The assembler checks every included lab for step-level sources, actual data/schema consistency, independent practice, expected output and safe cleanup. Source records roll up to a shipped `FRESHNESS.md`; lab links must not point to private `.vbd` files absent from the deliverable. Required unresolved procedures block a runnable-ready claim even if an optional extension may be deferred.
 
 Configurable via `workshop.yaml.freshness`:
 - `allow_preview_features` (bool)
@@ -57,6 +62,8 @@ Configurable via `workshop.yaml.freshness`:
 ## Two-surface support
 
 Same skills run in **Microsoft Scout** (via `m_get_skill` + `SKILL.md`) and **GitHub Copilot** (via `.github/prompts/*.prompt.md` and Copilot CLI custom skills). No duplication — Copilot entry points thin-wrap the same skill definitions.
+
+There are four implemented `SKILL.md` definitions. `skills/vbd-lab-security/` is empty and is not installed. Personal Copilot directory registrations and Scout registrations point to a complete local checkout, retaining skill references and shared templates/components. Resolve linked targets before resolving relative resources; see the root README installation procedure. Workspace-backed edits still use the provider's editing tools rather than a local synced copy.
 
 ## Open architectural decisions
 

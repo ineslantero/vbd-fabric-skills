@@ -14,6 +14,8 @@ outputs:
 
 Produce a small star-schema-shaped set of **CSV files** that fit the customer's industry and the labs selected in `workshop.yaml`. CSVs only — no Parquet, no Delta, no medallion pre-baking. The labs themselves do the transformations.
 
+Resolve `references/` from this skill's real directory and shared `templates/` / `components/` from the repository root two levels above it. Resolve an installation link before locating resources.
+
 Reference for style: [ineslantero/fabric-training-cmi — `data/`](https://github.com/ineslantero/fabric-training-cmi/tree/master/data). Reference for shape: the SP CSVs in `skills/vbd-data/references/<lab>/`.
 
 ## What the sample CSVs should look like
@@ -48,7 +50,7 @@ The NY Taxi reference is a fact (trips) + one small lookup (locations).
 
 ### Warehouse and RTI
 
-**No CSVs.** Warehouse loads from the Lakehouse output; RTI streams from Fabric's built-in sample eventstreams. Nothing to generate.
+Do not generate redundant CSVs. Warehouse normally reuses the Lakehouse output; document a complete standalone ingestion route if Warehouse is selected without Lakehouse or replayed independently. RTI can use a verified built-in sample; a bounded optional synthetic event generator must match the documented target schema.
 
 ## How to run
 
@@ -58,6 +60,9 @@ The NY Taxi reference is a fact (trips) + one small lookup (locations).
 4. **Show the CSA the mapping table + first 3 rows of each file (dry run)** and ask for approval before writing. Adjust based on feedback.
 5. **On approval, generate** with Faker or `random` under a fixed seed. Enforce referential integrity — every FK in the fact must resolve to a row in the matching dim.
 6. **Emit `data/README.md`** — one section per file with columns, row count, sample rows, and the seed used.
+7. **Make the data usable without the trainer.** Include repository-relative file locations, encoding/delimiter/header/date/null conventions, types and primary/foreign keys, plus exact target table names. Provide a concrete upload/load procedure or link to its numbered lab steps.
+8. **Supply deterministic validation evidence.** Check actual generated row counts, key uniqueness, null expectations, foreign-key integrity and one known aggregate/join result used by the labs. Record the generation date range, seed and dependency versions; a random seed alone does not make today's date or a changing library deterministic. Never invent expected results without calculating them from the generated data.
+9. **Reconcile all consumers.** Notebook/SQL/KQL snippets, challenges and course worked examples must use these exact names and types. Label intentionally dirty rows for cleaning exercises and define the expected before/after check; do not silently violate the clean baseline.
 
 ## Guardrails
 

@@ -30,6 +30,38 @@ workshop:
       include_topics: []
       exclude_topics: []
       customer_angle: <one-liner>
+      teaching:                            # * course explanation -> worked example -> practice -> debrief
+        concept: <concept-and-business-decision>
+        worked_example: <starting-artifact-persona-and-lab-step-range>
+        learner_task: <concrete-change-the-learner-makes>
+        evidence: <expected-output-and-how-to-check-it>
+        debrief: <trade-off-or-transfer-question>
+      learning:                            # * required for included modules in newly authored courses
+        mode: <hands-on|guided-hands-on|demonstration|offline-design>
+        lab_path: <labs/nn-module/README.md>
+        explain_minutes: 0
+        setup_minutes: 0
+        guided_minutes: 0
+        practice_minutes: 0
+        check_minutes: 0
+        cleanup_minutes: 0                  # sum all six fields = duration_hours * 60
+        starting_state: <items-tables-and-earlier-lab-dependencies>
+        standalone_setup: <exact-step-link-or-complete-bootstrap-procedure>
+        required_roles: []
+        feature_prerequisites: []           # capacity/licence/region/tenant setting, each with source
+        setup_owner: <role-not-private-personal-details>
+        readiness_check: <action-and-expected-result>
+        output_artifact: <item-or-file-the-learner-creates>
+        success_criteria: []                # observable checks, including expected query results
+        challenge: <independent-change-and-acceptance-criteria>
+        fallback: <observed-or-offline-route-not-labelled-executed>
+        cleanup: []                         # owned resources only; reverse changes safely
+        execution_status: not-run           # not-run | passed | failed | blocked; attach evidence if run
+        sources:
+          - url: <verified-microsoft-learn-procedure-url>
+            role: procedure                # procedure | context | availability
+            checked_on: <YYYY-MM-DD>
+            supports: <step-range-or-claim>
       # if include=false:
       # reason: <why skipped>
   data_strategy:
@@ -49,7 +81,7 @@ workshop:
     include_solutions: false
     language: en
   freshness:
-    fabric_release_pinned: <YYYY-MM>      # * pinned at plan time
+    fabric_release_pinned: <YYYY-MM>      # * documentation release reference, not runtime version lock
     allow_preview_features: true
     allow_roadmap_futures: true
     regions_to_check: []
