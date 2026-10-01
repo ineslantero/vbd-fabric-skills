@@ -51,7 +51,7 @@
 
 The lab ships with five CSV files under `data/` at the repo root. For WWI-shaped data these are:
 
-- `fact_sale.csv` — invoice-line facts; fields: `SaleKey`, `CityKey`, `CustomerKey`, `StockItemKey`, `SalespersonKey`, `InvoiceDateKey`, `Quantity`, `UnitPrice`, `TaxAmount`, `TotalExcludingTax`, `TotalIncludingTax`, `Profit`.
+- `fact_sale.csv` — invoice-line facts; fields: `SaleKey`, `CityKey`, `CustomerKey`, `SalespersonKey`, `InvoiceDateKey`, `Quantity`, `UnitPrice`, `TaxAmount`, `TotalExcludingTax`, `TotalIncludingTax`, `Profit`.
 - `dimension_customer.csv` — fields: `CustomerKey`, `Customer`, `BuyingGroup`, `Category`, `PostalCode`.
 - `dimension_city.csv` — fields: `CityKey`, `City`, `StateProvince`, `Country`, `SalesTerritory`.
 - `dimension_employee.csv` — fields: `EmployeeKey`, `Employee`, `PreferredName`, `IsSalesperson`.

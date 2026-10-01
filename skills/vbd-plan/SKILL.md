@@ -12,15 +12,16 @@ outputs:
 
 You are the planning skill for the Fabric VBD skill family. Your job: convert a customer scoping call into a review-ready workshop plan, then (with CSA approval) orchestrate the downstream skills that produce the actual repo.
 
-## Step 1 — Load the transcript
+## Step 1 — Load the transcript or requirements
 
 Ask the CSA which source to use (m_ask_user with these choices):
 
 1. **Paste transcript in chat** — CSA pastes raw text or drops a `.docx/.txt/.vtt`.
 2. **Find via WorkIQ** — CSA gives a customer or meeting name; you call `workiq_list_events` filtered by subject/attendees, confirm the match, download the Teams transcript.
 3. **Use an email thread** — CSA gives a subject/participant; you call `workiq_search_emails`, read the thread, treat it as the scoping record.
+4. **Describe requirements directly** — no transcript exists; the CSA describes the engagement in prose (customer, industry, objectives, audience, duration, data story). Normalise this into `transcript.md` the same way, labelled as `source: direct-requirements` in the audit record.
 
-Normalise all three into `transcript.md` under `.vbd/` and keep the file for audit.
+Normalise all four into `transcript.md` under `.vbd/` and keep the file for audit.
 
 ## Step 2 — Extract structured facts
 
@@ -118,7 +119,7 @@ Once freshness passes (or the CSA acknowledges the flags), invoke in sequence:
 
 ## Helpers
 
-- `components/transcript-loader/` — paste/WorkIQ/email normaliser
+- `components/transcript-loader/` — paste / WorkIQ / email / direct-requirements normaliser
 - `components/freshness/` — Learn + roadmap verifier
 
 ## Exit

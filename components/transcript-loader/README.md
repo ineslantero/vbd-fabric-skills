@@ -1,6 +1,6 @@
 # components/transcript-loader
 
-Normalises a scoping-call transcript from any of three sources into `.vbd/transcript.md` so downstream skills see a single shape.
+Normalises a scoping-call transcript (or direct requirements) from any of four sources into `.vbd/transcript.md` so downstream skills see a single shape.
 
 ## Sources
 
@@ -24,13 +24,16 @@ Used when there's no formal scoping call.
 2. Fetch full thread via `workiq_get_email` (include quoted history).
 3. Concatenate in chronological order as `transcript.md`.
 
+### 4. Direct requirements
+Used when there's no transcript at all — CSA describes the engagement in prose. The skill prompts for the fields it would otherwise extract (customer, industry, objectives, audience, duration, data story) and writes them into `transcript.md` in the same shape as a parsed transcript, with `source: direct-requirements` recorded in `transcript.source.yaml` so downstream skills still have a provenance record.
+
 ## Output
 
 ```
 .vbd/
 ├── transcript.md          ← normalised, downstream reads this
 ├── transcript.source.yaml ← provenance (source, ids, timestamps)
-└── transcript.raw/        ← original files/JSON for audit
+└── transcript.raw/        ← original files/JSON for audit (empty for direct-requirements)
 ```
 
 ## Privacy
