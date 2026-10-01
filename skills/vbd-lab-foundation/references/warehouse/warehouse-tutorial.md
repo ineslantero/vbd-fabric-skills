@@ -3,7 +3,7 @@
 > Converted from `Fabric Data Warehouse Tutorial.docx` (SharePoint IP Release - Fabric Foundation Discovery Labs).
 > Screenshots have been stripped; Microsoft Learn URLs are cited inline throughout.
 
-> **Freshness-verified 2026-09-15** — Cross-checked against Microsoft Learn. Fixes applied per `.vbd/freshness-audit-2026-09-15.md`. Preview features are called out inline where relevant.
+> **Freshness-verified 2026-10-01** — Cross-checked against Microsoft Learn. Fixes applied per `.vbd/freshness-audit-2026-09-15.md`. Preview features are called out inline where relevant.
 
 ## Contents
 
@@ -41,25 +41,21 @@
 
 - Create a workspace for Warehouse lab assets.
 - Create the `WideWorldImporters` Warehouse.
-- Load `dimension_customer` from `wwilakehouse`.
-- Create `dimension_city` and `fact_sale` tables with T-SQL.
-- Load Parquet data into Warehouse tables with a pipeline.
+- Load `dimension_customer` from the Lakehouse built in the Lakehouse lab.
+- Create `dimension_city` and `fact_sale` tables with T-SQL (CSV-aligned schemas).
+- Load `dimension_city` and `fact_sale` from the Lakehouse with a Copy pipeline.
 - Transform sales data with a stored procedure.
 - Explore data with the visual query builder.
 - Build a Power BI report and test Warehouse time travel and clone features.
 
 ## Microsoft Learn references
 
-- https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
-- https://learn.microsoft.com/en-us/fabric/get-started/microsoft-fabric-overview
-- https://learn.microsoft.com/en-us/fabric/data-warehouse/tutorial-introduction
-- https://learn.microsoft.com/en-us/sql/samples/wide-world-importers-what-is?view=sql-server-ver16
-- https://learn.microsoft.com/en-us/sql/samples/wide-world-importers-what-is?view=sql-server-ver16
-- https://app.fabric.microsoft.com/
-- https://powerbi.com/
-- https://powerbi.com/
-- https://learn.microsoft.com/en-us/fabric/data-warehouse/data-warehousing
-- https://learn.microsoft.com/en-us/fabric/data-warehouse/tutorial-introduction
+- https://learn.microsoft.com/fabric/data-warehouse/data-warehousing
+- https://learn.microsoft.com/fabric/data-warehouse/tutorial-introduction
+- https://learn.microsoft.com/fabric/data-warehouse/ingest-data
+- https://learn.microsoft.com/fabric/data-warehouse/query-warehouse
+- https://learn.microsoft.com/fabric/data-warehouse/time-travel
+- https://learn.microsoft.com/fabric/data-warehouse/clone-table
 
 ## Modules
 
@@ -91,30 +87,26 @@
 **Explanation:** The Warehouse provides a relational SQL surface over Fabric storage for T-SQL development and reporting.
 **Checkpoint:** The `WideWorldImporters` build page appears.
 
-#### Step 3: Load `dimension_customer`
+#### Step 3: Load `dimension_customer` from the Lakehouse
+
+The Lakehouse lab produced a Delta table `dimension_customer` inside `wwilakehouse` (via the Dataflow Gen2). Copy it into the Warehouse so T-SQL can own it.
 
 - Return to the workspace item view.
 - Select **New item** > **Data pipeline**.
 - Name the pipeline `Load Customer Data`.
 - Select **Create**.
-- Select **Pipeline activity**.
-- Add **Copy data**.
+- Add a **Copy data** activity.
 - Set the activity name to `CD Load dimension_customer`.
-- On **Source**, select **More** under **Connection**.
-- Search for `wwilakehouse` and select the Lakehouse you created in the Lakehouse tutorial.
-- Set **File path - Directory** to `/wwi-raw-data/WideWorldImportersDW/tables`.
-- Set **File path - File name** to `dimension_customer.parquet`.
-- Set **File format** to **Parquet**.
-- Select **Preview data**.
-- On **Destination**, select `WideWorldImporters`.
-- Set **Table option** to **Auto create table**.
-- Set schema to `dbo`.
-- Set table name to `dimension_customer`.
+- **Source** → **Connection** = `wwilakehouse` (the Lakehouse from the previous lab).
+- **Source type** = **Table**, and select `dimension_customer` from **Tables** (not **Files**).
+- Preview data to confirm rows load.
+- **Destination** = `WideWorldImporters`.
+- Set **Table option** to **Auto create table**, schema `dbo`, table name `dimension_customer`.
 - Select **Run** > **Save and run**.
 - Monitor **Output** until the copy activity completes.
 
-**Explanation:** The pipeline copies a Lakehouse Parquet file into a Warehouse table so SQL and Power BI can use it directly.
-**Checkpoint:** `dbo.dimension_customer` exists in `WideWorldImporters`.
+**Explanation:** The pipeline copies a managed Lakehouse Delta table into a Warehouse table. Using the Lakehouse's Tables surface (not Files) means we never need to pin a Parquet path — the Lakehouse SQL endpoint already knows the schema.
+**Checkpoint:** `dbo.dimension_customer` exists in `WideWorldImporters` with the five CSV columns (`CustomerKey`, `Customer`, `BuyingGroup`, `Category`, `PostalCode`).
 
 #### Step 4: Build the quick customer report
 
@@ -144,52 +136,67 @@
 - Refresh the object explorer.
 
 ```sql
-/* -
+-- Drop and recreate dimension_city aligned with the Lakehouse CSV.
+DROP TABLE IF EXISTS [dbo].[dimension_city];
 
-1. Drop the dimension_city table if it already exists.
-2. Create the dimension_city table.
-3. Drop the fact_sale table if it already exists.
-4. Create the fact_sale table.
+CREATE TABLE [dbo].[dimension_city] (
+    [CityKey]        INT          NULL,
+    [City]           VARCHAR(200) NULL,
+    [StateProvince]  VARCHAR(100) NULL,
+    [Country]        VARCHAR(100) NULL,
+    [SalesTerritory] VARCHAR(100) NULL
+);
 
-*/ --dimension_city DROP TABLE IF EXISTS [dbo].[dimension_city];
+-- Drop and recreate fact_sale aligned with the Lakehouse CSV.
+DROP TABLE IF EXISTS [dbo].[fact_sale];
 
-CREATE TABLE [dbo].[dimension_city] ( [CityKey] [int] NULL, [WWICityID] [int] NULL, [City] [varchar](8000) NULL, [StateProvince] [varchar](8000) NULL, [Country] [varchar](8000) NULL, [Continent] [varchar](8000) NULL, [SalesTerritory] [varchar](8000) NULL, [Region] [varchar](8000) NULL, [Subregion] [varchar](8000) NULL, [Location] [varchar](8000) NULL, [LatestRecordedPopulation] [bigint] NULL, [ValidFrom] [datetime2](6) NULL, [ValidTo] [datetime2](6) NULL, [LineageKey] [int] NULL );
-
---fact_sale DROP TABLE IF EXISTS [dbo].[fact_sale];
-
-CREATE TABLE [dbo].[fact_sale] ( [SaleKey] [bigint] NULL, [CityKey] [int] NULL, [CustomerKey] [int] NULL, [BillToCustomerKey] [int] NULL, [StockItemKey] [int] NULL, [InvoiceDateKey] [datetime2](6) NULL, [DeliveryDateKey] [datetime2](6) NULL, [SalespersonKey] [int] NULL, [WWIInvoiceID] [int] NULL, [Description] [varchar](8000) NULL, [Package] [varchar](8000) NULL, [Quantity] [int] NULL, [UnitPrice] [decimal](18, 2) NULL, [TaxRate] [decimal](18, 3) NULL, [TotalExcludingTax] [decimal](29, 2) NULL, [TaxAmount] [decimal](38, 6) NULL, [Profit] [decimal](18, 2) NULL, [TotalIncludingTax] [decimal](38, 6) NULL, [TotalDryItems] [int] NULL, [TotalChillerItems] [int] NULL, [LineageKey] [int] NULL, [Month] [int] NULL, [Year] [int] NULL, [Quarter] [int] NULL );
+CREATE TABLE [dbo].[fact_sale] (
+    [SaleKey]              BIGINT        NULL,
+    [CityKey]              INT           NULL,
+    [CustomerKey]          INT           NULL,
+    [SalespersonKey]       INT           NULL,
+    [InvoiceDateKey]       DATE          NULL,
+    [Quantity]             INT           NULL,
+    [UnitPrice]            DECIMAL(18,2) NULL,
+    [TaxAmount]            DECIMAL(18,2) NULL,
+    [TotalExcludingTax]    DECIMAL(18,2) NULL,
+    [TotalIncludingTax]    DECIMAL(18,2) NULL,
+    [Profit]               DECIMAL(18,2) NULL
+);
 ```
 
-**Explanation:** The script defines the two remaining tables needed for sales analysis: one dimension and one fact table.
+**Explanation:** The schemas mirror the CSVs loaded in the Lakehouse lab. Keeping the Warehouse and Lakehouse columns identical means Step 6 can `INSERT ... SELECT` straight across without column mapping.
 **Checkpoint:** `fact_sale`, `dimension_city`, and the saved `Create Tables` query appear in Object explorer.
 
-#### Step 6: Load `dimension_city` and `fact_sale`
+#### Step 6: Load `dimension_city` and `fact_sale` from the Lakehouse
 
-- Create a new data pipeline.
-- Name it `Copy data to dimension city and fact sale`.
-- Open **Copy assistant**.
-- Select `wwilakehouse` as the Lakehouse source.
-- Browse to `OneLake -> wwilakehouse -> files section -> /wwi-raw-data/WideWorldImportersDW/tables`.
-- Select `dimension_city.parquet`.
-- Choose `WideWorldImporters` as the destination Warehouse.
-- Load to existing table `dbo.dimension_city`.
-- Keep **Enable staging** checked.
-- Clear **Start data transfer immediately**.
-- Rename the activity `Copy dimension city`.
-- Add another copy activity with **Use copy assistant**.
-- Select `wwilakehouse` as the source.
-- Select `fact_sale.parquet`.
-- Choose `WideWorldImporters` as the destination.
-- Load to existing table `dbo.fact_sale`.
-- Delete mappings for `Month`, `Year`, and `Quarter`.
-- Keep **Enable staging** checked.
-- Clear **Start data transfer immediately**.
-- Rename the activity `Copy Fact Sale`.
-- Run the pipeline.
-- Monitor completion.
+Two paths — pick one.
 
-**Explanation:** The two copy activities populate the Warehouse schema from the Lakehouse files. The mapping cleanup prevents target-only date part columns from blocking the load.
-**Checkpoint:** `dbo.dimension_city` and `dbo.fact_sale` contain rows.
+**Option A (recommended): cross-database `INSERT ... SELECT`.** Fabric Warehouse can query the Lakehouse SQL endpoint directly in the same workspace. One SQL script, no pipeline.
+
+```sql
+INSERT INTO [dbo].[dimension_city]
+SELECT CityKey, City, StateProvince, Country, SalesTerritory
+FROM [wwilakehouse].[dbo].[dimension_city];
+
+INSERT INTO [dbo].[fact_sale]
+SELECT SaleKey, CityKey, CustomerKey, SalespersonKey,
+       InvoiceDateKey, Quantity, UnitPrice, TaxAmount,
+       TotalExcludingTax, TotalIncludingTax, Profit
+FROM [wwilakehouse].[dbo].[fact_sale];
+```
+
+**Option B: Copy pipeline from Lakehouse Tables.** Useful if the Lakehouse lives in a different workspace or the learner wants to practise pipelines.
+
+- Create a data pipeline named `Copy data to dimension_city and fact_sale`.
+- Add a **Copy data** activity, source = `wwilakehouse`, source type = **Table**, select `dimension_city`.
+- Destination = `WideWorldImporters`, load to existing table `dbo.dimension_city`.
+- Add a second Copy activity for `fact_sale` with the same pattern.
+- Keep **Enable staging** checked. Clear **Start data transfer immediately**.
+- Run the pipeline and monitor completion.
+
+**Explanation:** Both paths reuse the Lakehouse Delta tables you already loaded — no Parquet download, no file-path pinning, no column reshaping. Option A is one script; Option B shows the no-code pipeline pattern.
+**Checkpoint:** `dbo.dimension_city` and `dbo.fact_sale` return non-zero `SELECT COUNT(*)`.
 
 #### Step 7: Create the aggregate stored procedure
 

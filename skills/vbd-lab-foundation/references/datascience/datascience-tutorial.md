@@ -3,7 +3,7 @@
 > Converted from `Data Science Tutorial.docx` (SharePoint IP Release - Fabric Foundation Discovery Labs).
 > Screenshots have been stripped; Microsoft Learn URLs are cited inline throughout.
 
-> **Freshness-verified 2026-09-15** — Cross-checked against Microsoft Learn. Fixes applied per `.vbd/freshness-audit-2026-09-15.md`. Preview features are called out inline where relevant.
+> **Freshness-verified 2026-10-01** — Cross-checked against Microsoft Learn. Fixes applied per `.vbd/freshness-audit-2026-09-15.md`. Preview features are called out inline where relevant.
 
 ## Contents
 
@@ -122,39 +122,18 @@
 
 ## Microsoft Learn references
 
-- https://learn.microsoft.com/en-us/fabric/get-started/microsoft-fabric-overview
-- https://learn.microsoft.com/en-us/power-bi/enterprise/service-admin-premium-purchase
-- https://learn.microsoft.com/en-us/fabric/enterprise/buy-subscription
-- https://learn.microsoft.com/en-us/fabric/get-started/fabric-trial
+- https://learn.microsoft.com/fabric/get-started/microsoft-fabric-overview
+- https://learn.microsoft.com/fabric/get-started/fabric-trial
+- https://learn.microsoft.com/fabric/data-science/data-science-overview
+- https://learn.microsoft.com/fabric/data-science/data-wrangler
+- https://learn.microsoft.com/fabric/data-science/mlflow-autologging
+- https://learn.microsoft.com/fabric/data-science/model-scoring-predict
+- https://learn.microsoft.com/fabric/data-science/tutorial-data-science-train-models
+- https://learn.microsoft.com/fabric/data-science/tutorial-data-science-batch-scoring
+- https://learn.microsoft.com/fabric/data-engineering/library-management
 - https://mlflow.org/docs/latest/index.html
 - https://docs.delta.io/latest/index.html
-- https://seaborn.pydata.org/
-- https://learn.microsoft.com/en-us/fabric/data-science/data-wrangler
-- https://learn.microsoft.com/en-us/fabric/data-science/media/tutorial-data-science-explore-notebook/preview.png#lightbox
-- https://learn.microsoft.com/en-us/fabric/data-science/media/tutorial-data-science-explore-notebook/drop-duplicate.png#lightbox
-- https://learn.microsoft.com/en-us/fabric/data-science/media/tutorial-data-science-explore-notebook/drop-missing.png#lightbox
-- https://learn.microsoft.com/en-us/fabric/data-science/media/tutorial-data-science-explore-notebook/drop-columns.png#lightbox
-- https://mlflow.org/docs/latest/index.html
-- https://aka.ms/fabric/create-environment
-- https://learn.microsoft.com/en-us/fabric/data-engineering/library-management#scenario-1-admin-sets-default-libraries-for-the-workspace
-- https://learn.microsoft.com/en-us/fabric/data-engineering/environment-workspace-migration
-- https://aka.ms/fabric-autologging
 - https://imbalanced-learn.org/stable/references/generated/imblearn.over_sampling.SMOTE.html
-- https://imbalanced-learn.org/stable/over_sampling.html#smote-adasyn
-- https://learn.microsoft.com/en-us/fabric/data-science/media/tutorial-data-science-train-models/filter-workspace.png#lightbox
-- https://learn.microsoft.com/en-us/fabric/data-science/media/tutorial-data-science-train-models/experiment-runs.png#lightbox
-- https://aka.ms/samples/frauddectection
-- https://learn.microsoft.com/en-us/fabric/data-science/model-scoring-predict
-- https://learn.microsoft.com/fabric/data-science/tutorial-data-science-train-models
-- https://aka.ms/fabric/predict-from-model-item
-- https://learn.microsoft.com/en-us/fabric/data-science/tutorial-data-science-batch-scoring
-- https://learn.microsoft.com/en-us/fabric/data-science/media/tutorial-data-science-create-report/churn-rate.png#lightbox
-- https://learn.microsoft.com/en-us/fabric/data-science/media/tutorial-data-science-create-report/card-churn.png#lightbox
-- https://learn.microsoft.com/en-us/fabric/data-science/media/tutorial-data-science-create-report/age.png#lightbox
-- https://learn.microsoft.com/en-us/fabric/data-science/media/tutorial-data-science-create-report/number-of-products.png#lightbox
-- https://learn.microsoft.com/en-us/fabric/data-science/media/tutorial-data-science-create-report/new-credit-score.png#lightbox
-- https://learn.microsoft.com/en-us/fabric/data-science/media/tutorial-data-science-create-report/change-title.png#lightbox
-- https://learn.microsoft.com/en-us/fabric/data-science/media/tutorial-data-science-create-report/germany-spain-france.png#lightbox
 
 ## Modules
 
@@ -326,7 +305,7 @@
 
 #### Step 15: Install session libraries
 
-- Open the `03 – train-evaluate` notebook.
+- Open the `3-train-evaluate` notebook.
 - Run the first cell that installs `imbalanced-learn` with `%pip install`.
 - Restart or continue after the PySpark kernel restart.
 - Re-run the install after any notebook session restart.
@@ -463,18 +442,18 @@ Churn Rate = AVERAGE(customer_churn_test_predictions[predictions])
 Customers = COUNT(customer_churn_test_predictions[predictions])
 ```
 
-- Add the Germany churn measure.
+- Add the Germany churn measure. `Geography_Germany` is created by one-hot encoding in Step 13 as a 0/1 integer column, so compare against `1`.
 
 ```DAX
-Germany Churn = CALCULATE(AVERAGE(customer_churn_test_predictions[predictions]),FILTER(customer_churn_test_predictions, customer_churn_test_predictions[Geography_Germany] = TRUE()))
+Germany Churn = CALCULATE(AVERAGE(customer_churn_test_predictions[predictions]),FILTER(customer_churn_test_predictions, customer_churn_test_predictions[Geography_Germany] = 1))
 ```
 
 - Repeat for Spain and France.
 
 ```DAX
-Spain Churn = CALCULATE(AVERAGE(customer_churn_test_predictions[predictions]),FILTER(customer_churn_test_predictions, customer_churn_test_predictions[Geography_Spain] = TRUE()))
+Spain Churn = CALCULATE(AVERAGE(customer_churn_test_predictions[predictions]),FILTER(customer_churn_test_predictions, customer_churn_test_predictions[Geography_Spain] = 1))
 
-France Churn = CALCULATE(AVERAGE(customer_churn_test_predictions[predictions]),FILTER(customer_churn_test_predictions, customer_churn_test_predictions[Geography_France] = TRUE()))
+France Churn = CALCULATE(AVERAGE(customer_churn_test_predictions[predictions]),FILTER(customer_churn_test_predictions, customer_churn_test_predictions[Geography_France] = 1))
 ```
 
 **Explanation:** Measures summarize predictions into report-ready churn metrics overall and by geography.

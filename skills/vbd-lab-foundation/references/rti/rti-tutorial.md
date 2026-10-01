@@ -3,7 +3,7 @@
 > Converted from `Real-time Intelligence Tutorial.docx` (SharePoint IP Release - Fabric Foundation Discovery Labs).
 > Screenshots have been stripped; Microsoft Learn URLs are cited inline throughout.
 
-> **Freshness-verified 2026-09-15** — Cross-checked against Microsoft Learn. Fixes applied per `.vbd/freshness-audit-2026-09-15.md`. Preview features are called out inline where relevant.
+> **Freshness-verified 2026-10-01** — Cross-checked against Microsoft Learn. Fixes applied per `.vbd/freshness-audit-2026-09-15.md`. Preview features are called out inline where relevant.
 
 ## Contents
 
@@ -80,21 +80,14 @@
 
 ## Microsoft Learn references
 
-- https://learn.microsoft.com/en-us/fabric/real-time-intelligence/event-streams/overview
-- https://learn.microsoft.com/en-us/fabric/real-time-intelligence/eventhouse
-- https://learn.microsoft.com/en-us/fabric/real-time-intelligence/create-database
-- https://learn.microsoft.com/en-us/fabric/real-time-intelligence/create-query-set
-- https://learn.microsoft.com/en-us/fabric/real-time-intelligence/dashboard-real-time-create
-- https://learn.microsoft.com/en-us/power-bi/enterprise/service-admin-premium-purchase
-- https://app.fabric.microsoft.com/
-- https://learn.microsoft.com/en-us/fabric/real-time-intelligence/media/tutorial/event-stream-edit-button.png#lightbox
-- https://learn.microsoft.com/en-us/fabric/real-time-intelligence/media/tutorial/add-all-fields.png#lightbox
-- https://learn.microsoft.com/en-us/fabric/real-time-intelligence/media/tutorial/select-built-in-function.png#lightbox
-- https://learn.microsoft.com/en-us/fabric/real-time-intelligence/media/tutorial/pencil-on-event-house.png#lightbox
-- https://learn.microsoft.com/en-us/fabric/fundamentals/copilot-real-time-intelligence
-- https://learn.microsoft.com/en-us/fabric/real-time-intelligence/media/tutorial/bikes-timechart.png#lightbox
+- https://learn.microsoft.com/fabric/real-time-intelligence/event-streams/overview
+- https://learn.microsoft.com/fabric/real-time-intelligence/eventhouse
+- https://learn.microsoft.com/fabric/real-time-intelligence/create-database
+- https://learn.microsoft.com/fabric/real-time-intelligence/create-query-set
+- https://learn.microsoft.com/fabric/real-time-intelligence/dashboard-real-time-create
+- https://learn.microsoft.com/fabric/real-time-intelligence/data-activator/activator-introduction
+- https://learn.microsoft.com/fabric/fundamentals/copilot-real-time-intelligence
 - https://github.com/microsoft/fabric-samples/blob/main/docs-samples/real-time-intelligence/tutorial-commands-script.kql
-- https://learn.microsoft.com/en-us/fabric/real-time-intelligence/media/tutorial/second-visual-report.png#lightbox
 
 ## Modules
 
@@ -184,12 +177,10 @@
 - Run the table folder command.
 
 ```kql
-.alter table RawData (BikepointID:string,Street:string,Neighbourhood:string,Latitude:dynamic,Longitude:dynamic,No_Bikes:long,No_Empty_Docks:long,Timestamp:datetime) with (folder="Bronze")
-
-Correct .alter table RawData (BikepointID:string,Street:string,Neighbourhood:string,Latitude:double,Longitude:double,No_Bikes:long,No_Empty_Docks:long,Timestamp:datetime) with (folder="Bronze")
+.alter table RawData (BikepointID:string, Street:string, Neighbourhood:string, Latitude:double, Longitude:double, No_Bikes:long, No_Empty_Docks:long, Timestamp:datetime) with (folder="Bronze")
 ```
 
-**Explanation:** The Bronze folder labels `RawData` as the unrefined landing table. The corrected command captures `Latitude` and `Longitude` as numeric values.
+**Explanation:** The Bronze folder labels `RawData` as the unrefined landing table. `Latitude` and `Longitude` are captured as `double` so later KQL can use them in map visuals and numeric filters.
 **Checkpoint:** `RawData` appears under the Bronze folder.
 
 #### Step 7: Create `TransformedData`
@@ -197,7 +188,7 @@ Correct .alter table RawData (BikepointID:string,Street:string,Neighbourhood:str
 - Run the table creation command.
 
 ```kql
-.create table TransformedData (BikepointID: int, Street: string, Neighbourhood: string, Latitude: dynamic, Longitude: dynamic, No_Bikes: long, No_Empty_Docks: long, Timestamp: datetime, BikesToBeFilled: long, Action: string) with (folder="Silver")
+.create table TransformedData (BikepointID: int, Street: string, Neighbourhood: string, Latitude: double, Longitude: double, No_Bikes: long, No_Empty_Docks: long, Timestamp: datetime, BikesToBeFilled: long, Action: string) with (folder="Silver")
 ```
 
 **Explanation:** `TransformedData` stores parsed and enriched records from `RawData` in the Silver folder.
@@ -396,9 +387,8 @@ RawData
 - Drag `No_Empty_Docks` to **Y-axis**.
 - Select **File** > **Save**.
 - Name the report `TutorialReport`.
-- Choose the `Fabric Real Time Intelligence Tutorial` workspace.
-- Set sensitivity to **Public**.
-- Select **Continue**.
+- Choose the `Fabric Real-time Intelligence Tutorial` workspace.
+- Select **Save**.
 - Select **Open the file in Power BI to view, edit, and get a shareable link**.
 
 **Explanation:** The report uses a KQL query result as its model so Power BI can visualize the latest state of the stream.
@@ -423,7 +413,7 @@ RawData
 
 #### Step 19: Delete the workspace
 
-- Return to the `Fabric Real-time Analytics Solution Tutorial` workspace item view.
+- Return to the `Fabric Real-time Intelligence Tutorial` workspace item view.
 - Select **Workspace settings**.
 - Select **General** > **Remove this workspace**.
 - Scroll down.
