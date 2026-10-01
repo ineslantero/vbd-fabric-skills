@@ -4,7 +4,7 @@ Reusable skills for CSAs to plan and generate **Fabric Value-Based Delivery (VBD
 
 ## Why
 
-The Fabric VBD "IP release" content on SharePoint ([`Data and AI/Fabric/1 - Upskilling`](https://microsoft.sharepoint.com/teams/ASDIPRelease)) is static: `.pptx` decks + `.docx` lab guides + `Assets/` sample data (retail WWI dataset, NY taxi data). It ages badly and rarely matches the customer's industry.
+The Fabric VBD "IP release" content on SharePoint ([`Data and AI/Fabric/1 - Upskilling`](https://microsoft.sharepoint.com/teams/ASDIPRelease/IP%20Release/Forms/AllItems.aspx?id=%2Fteams%2FASDIPRelease%2FIP%20Release%2FData%20and%20AI%2FFabric%2F1%20%2D%20Upskilling&viewid=971b6985%2D5ac6%2D47e5%2Da6dc%2D5c0664b149a9&FolderCTID=0x012000F569B1CB3A2B2D499B8B6646AC5C92E3&share=cgrQu2H2GlJNRJQZc4aGoRH4EgUC5%5Fu%5FUusLmp6kQLXJk6%2Dg%5FA)) is static: `.pptx` decks + `.docx` lab guides + `Assets/` sample data (retail WWI dataset, NY taxi data). It ages badly and rarely matches the customer's industry.
 
 These skills let a CSA:
 - Drop a scoping-call transcript in and get a proposal, agenda, prereqs and content plan.
@@ -14,7 +14,7 @@ These skills let a CSA:
 
 ## Source coverage
 
-The **Foundation VBD Discovery Labs** are covered end-to-end by `/vbd-lab-foundation` (mirrors [SharePoint `02 - Discovery Labs`](https://microsoft.sharepoint.com/teams/ASDIPRelease/IP%20Release/Data%20and%20AI/Fabric/1%20-%20Upskilling/1%20-%20Foundation)):
+The **Foundation VBD Discovery Labs** are covered end-to-end by `/vbd-lab-foundation` (mirrors [SharePoint `02 - Discovery Labs`](https://microsoft.sharepoint.com/teams/ASDIPRelease/IP%20Release/Forms/AllItems.aspx?id=%2Fteams%2FASDIPRelease%2FIP%20Release%2FData%20and%20AI%2FFabric%2F1%20%2D%20Upskilling%2F1%20%2D%20Foundation%2FUpskilling%20on%20MS%20Fabric%20Foundation%2FAssets%2F02%20%2D%20Discovery%20Labs&viewid=971b6985%2D5ac6%2D47e5%2Da6dc%2D5c0664b149a9)):
 
 | Lab | Original SharePoint asset | Skill output |
 |---|---|---|

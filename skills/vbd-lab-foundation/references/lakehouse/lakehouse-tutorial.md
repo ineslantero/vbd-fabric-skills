@@ -1,56 +1,63 @@
 # Fabric Foundation VBD - Lakehouse Lab Tutorial
 
-> Converted from `Lakehouse Tutorial.docx` (SharePoint IP Release - Fabric Foundation Discovery Labs).
+> Converted from `Lakehouse Tutorial.docx` (SharePoint IP Release - Fabric Foundation Discovery Labs) and restructured for the CSV-first flow used by `/vbd-lab-foundation`.
+>
 > Screenshots have been stripped; Microsoft Learn URLs are cited inline throughout.
 
-> **Freshness-verified 2026-09-15** — Cross-checked against Microsoft Learn. Fixes applied per `.vbd/freshness-audit-2026-09-15.md`. Preview features are called out inline where relevant.
+> **Freshness-verified 2026-10-01** — Cross-checked against Microsoft Learn. Fixes applied per `.vbd/freshness-audit-2026-09-15.md`. Preview features are called out inline where relevant.
 
 ## Contents
 
 - Introduction
-
 - Module 1: Getting Started
-
-- Create a Fabric workspace
-
+  - Create a Fabric workspace
 - Module 2: Build your first Lakehouse in Fabric
-
-- Create a lakehouse
-
-- Data Ingestion
-
-- Building a report
-
-- Module 3: Ingest, Prep and Analyze
-
-- Data Ingestion
-
-- Data Preparation
-
-- Building a report
-
+  - Create a lakehouse
+  - Upload the CSV dataset to Files
+  - Ingest `dimension_customer.csv` with Dataflow Gen2
+- Module 3: Load, Transform, Analyze
+  - Load CSVs as Delta tables (notebook)
+  - Transform into business aggregates (notebook)
+  - Query via SQL analytics endpoint
+  - Build the semantic model with insight-driving DAX
+  - Build the Power BI report
 - Module 4: Clean up resources
 
 ## Objective
 
 - Create a Fabric workspace for the lab assets.
 - Build the `wwilakehouse` Lakehouse.
-- Ingest `dimension_customer.csv` with Dataflow Gen2.
-- Load the Wide World Importers sample files into OneLake.
-- Transform raw Parquet files into Delta tables.
-- Create aggregate tables with PySpark and Spark SQL.
-- Create explicit Power BI semantic models for Lakehouse tables.
-- Build and save a Power BI report from DirectLake data.
+- Bulk upload the sample CSVs to the Lakehouse Files area.
+- Ingest `dimension_customer.csv` through a low-code Dataflow Gen2.
+- Load the remaining CSVs as Delta tables with a notebook.
+- Transform raw tables into business aggregates with a second notebook.
+- Create an explicit Power BI semantic model with two DAX measures that surface new insight.
+- Build and save a Direct Lake report that uses those measures.
 
 ## Microsoft Learn references
 
-- https://learn.microsoft.com/en-us/fabric/get-started/microsoft-fabric-overview
-- https://learn.microsoft.com/en-us/sql/samples/wide-world-importers-what-is?view=sql-server-ver16
-- https://learn.microsoft.com/en-us/sql/samples/wide-world-importers-what-is?view=sql-server-ver16
-- https://learn.microsoft.com/en-us/sql/samples/wide-world-importers-what-is?view=sql-server-ver16
-- https://app.fabric.microsoft.com/
-- https://powerbi.com/
-- https://learn.microsoft.com/en-us/azure/synapse-analytics/spark/optimize-write-for-apache-spark
+- https://learn.microsoft.com/fabric/get-started/microsoft-fabric-overview
+- https://learn.microsoft.com/fabric/data-engineering/lakehouse-overview
+- https://learn.microsoft.com/fabric/data-engineering/load-data-lakehouse
+- https://learn.microsoft.com/fabric/data-factory/tutorial-end-to-end-introduction
+- https://learn.microsoft.com/fabric/data-factory/dataflow-gen2-data-destinations-and-managed-settings
+- https://learn.microsoft.com/fabric/data-engineering/lakehouse-notebook-load-data
+- https://learn.microsoft.com/fabric/data-engineering/lakehouse-and-delta-tables
+- https://learn.microsoft.com/fabric/data-warehouse/data-warehousing
+- https://learn.microsoft.com/fabric/direct-lake/overview
+- https://learn.microsoft.com/dax/time-intelligence-functions-dax
+
+## Sample data
+
+The lab ships with five CSV files under `data/` at the repo root. For WWI-shaped data these are:
+
+- `fact_sale.csv` — invoice-line facts; fields: `SaleKey`, `CityKey`, `CustomerKey`, `StockItemKey`, `SalespersonKey`, `InvoiceDateKey`, `Quantity`, `UnitPrice`, `TaxAmount`, `TotalExcludingTax`, `TotalIncludingTax`, `Profit`.
+- `dimension_customer.csv` — fields: `CustomerKey`, `Customer`, `BuyingGroup`, `Category`, `PostalCode`.
+- `dimension_city.csv` — fields: `CityKey`, `City`, `StateProvince`, `Country`, `SalesTerritory`.
+- `dimension_employee.csv` — fields: `EmployeeKey`, `Employee`, `PreferredName`, `IsSalesperson`.
+- `dimension_date.csv` — fields: `Date`, `CalendarYear`, `CalendarMonthNumber`, `CalendarMonthLabel`, `Day`, `ShortMonth`, `FiscalMonthNumber`.
+
+> `/vbd-lab-foundation` re-skins these entity names for the customer (e.g. `fact_sale` → `fact_claim`, `dimension_customer` → `dimension_member`). Keep the shape; swap the vocabulary.
 
 ## Modules
 
@@ -61,254 +68,242 @@
 - Sign in to Microsoft Fabric at https://app.fabric.microsoft.com/.
 - Select **Workspaces** > **New workspace**.
 - Name the workspace `Fabric Lakehouse Tutorial` plus a unique suffix.
-- Optionally add a description.
 - Expand **Advanced**.
 - Under **License mode**, select **Trial** or **Fabric capacity** and pick a capacity you can access.
 - Select **Apply**.
 
-**Explanation:** The workspace contains the lakehouse, dataflows, pipelines, notebooks, semantic models, and reports for the lab.
+**Explanation:** The workspace will contain the Lakehouse, dataflow, notebooks, semantic model and report for the lab.
 **Checkpoint:** The workspace opens and appears in the Workspaces list.
 
 ### Module 2: Build your first Lakehouse in Fabric
 
 #### Step 2: Create a lakehouse
 
-- Open the `Fabric Lakehouse Tutorial` workspace from https://powerbi.com/.
-- Select **New item**.
-- Select **Lakehouse** under **Store data**.
+- Open the workspace.
+- Select **New item** > **Lakehouse** under **Store data**.
 - Enter `wwilakehouse` as the name.
 - Keep **Lakehouse schemas** checked (default). Tables will be created under the `dbo` schema.
 - Select **Create**.
 
-**Explanation:** `wwilakehouse` is the central OneLake item for raw files, Delta tables, notebook work, SQL endpoint queries, and DirectLake reporting.
-**Checkpoint:** The new `wwilakehouse` item opens in the Lakehouse experience.
+**Explanation:** `wwilakehouse` is the central OneLake item for raw files, Delta tables, notebooks, SQL endpoint queries and Direct Lake reporting.
+**Checkpoint:** The `wwilakehouse` item opens in the Lakehouse experience.
 
-#### Step 3: Ingest `dimension_customer.csv` with Dataflow Gen2
+#### Step 3: Upload the CSV dataset to Files
 
-- Download `dimension_customer.csv` from the lab **Data** folder.
+- In `wwilakehouse`, right-click **Files** > **Upload** > **Upload files**.
+- Select **all CSVs except `dimension_customer.csv`** from the lab `data/` folder:
+  - `fact_sale.csv`
+  - `dimension_city.csv`
+  - `dimension_employee.csv`
+  - `dimension_date.csv`
+- Confirm the upload.
+- Refresh the Lakehouse explorer.
+
+**Explanation:** `Files/` is the unmanaged OneLake area for raw drops. Bulk upload is the fastest path for a one-off migration dump and mirrors the typical "lift-and-shift" starting point. `dimension_customer.csv` is deliberately held back so that Step 4 can show the low-code Dataflow path.
+**Checkpoint:** All four CSVs appear directly under `Files/` in the Lakehouse explorer.
+
+#### Step 4: Ingest `dimension_customer.csv` with Dataflow Gen2
+
 - In `wwilakehouse`, select **Get data** > **New Dataflow Gen2**.
 - Select **Import from a Text/CSV file**.
-- If upload works, choose **Upload file**, upload `dimension_customer.csv`, select **Next**, then select **Create**.
-- If upload is unavailable, cancel the wizard, upload the file to the Lakehouse **Files** area, reopen the dataflow, select **Get data from another source**, choose the `wwilakehouse` file, then select **Create**.
+- Choose **Upload file**, upload `dimension_customer.csv`, select **Next**, then **Create**.
 - Select **Use first row as headers**.
 - Rename the query `dimension_customer`.
 - Open the **Data destination** settings.
 - Select `wwilakehouse` as the destination Lakehouse.
 - Create or select the table `dimension_customer`.
-- Remove spaces and uppercase characters from the table name if the UI appends them.
 - Turn off **Use automatic settings**.
 - Select **Replace** and **Dynamic schema**.
 - Select **Save settings**.
 - Select **Publish**.
-- Rename the dataflow `Load Lakehouse Table` from **Properties**.
+- Rename the dataflow `Load dimension_customer` from **Properties**.
 - Select **Refresh now**.
 
-**Explanation:** Dataflow Gen2 gives a low-code route from CSV to a managed Lakehouse table. The destination settings make refreshes replace the table cleanly during the lab.
+**Explanation:** Dataflow Gen2 is the low-code route from CSV to a managed Lakehouse table — the path analysts reach for when they do not want to write code. Doing it for one dimension here makes the trade-off versus the notebook load (next step) explicit.
 **Checkpoint:** The `dimension_customer` table appears under **Tables** in `wwilakehouse` after refresh.
 
-#### Step 4: Query and model `dimension_customer`
+### Module 3: Load, Transform, Analyze
 
-- Open `wwilakehouse`.
-- Refresh the Lakehouse explorer if the table does not appear.
-- Select `dimension_customer` to preview data.
-- Switch to **SQL analytics endpoint**.
+#### Step 5: Load the uploaded CSVs as Delta tables (notebook)
+
+- Download `01 - Create Delta Tables.ipynb` from the lab **Scripts** folder.
+- Select **Import notebook** > **Upload**, then open `01 - Create Delta Tables`.
+- Confirm `wwilakehouse` is the attached Lakehouse.
+- Run all cells.
+
+The notebook loops through the four CSVs in `Files/` and writes each as a managed Delta table under `Tables/`:
+
+```python
+from pyspark.sql.functions import col, year, month, quarter
+
+csvs = {
+    "fact_sale":         "Files/fact_sale.csv",
+    "dimension_city":    "Files/dimension_city.csv",
+    "dimension_employee":"Files/dimension_employee.csv",
+    "dimension_date":    "Files/dimension_date.csv",
+}
+
+for table, path in csvs.items():
+    df = (spark.read
+            .option("header", "true")
+            .option("inferSchema", "true")
+            .csv(path))
+    if table == "fact_sale":
+        df = (df
+              .withColumn("Year",    year(col("InvoiceDateKey")))
+              .withColumn("Quarter", quarter(col("InvoiceDateKey")))
+              .withColumn("Month",   month(col("InvoiceDateKey"))))
+        (df.write.mode("overwrite")
+           .format("delta")
+           .partitionBy("Year", "Quarter")
+           .saveAsTable(table))
+    else:
+        (df.write.mode("overwrite")
+           .format("delta")
+           .saveAsTable(table))
+```
+
+**Explanation:** `Files/` was the landing zone; `Tables/` is the managed Delta tier. Partitioning `fact_sale` by `Year`/`Quarter` keeps later aggregates and Power BI queries efficient. The dimensions do not need partitioning.
+**Checkpoint:** `fact_sale`, `dimension_city`, `dimension_employee`, `dimension_date` and `dimension_customer` (from Step 4) all appear under **Tables**.
+
+#### Step 6: Transform into business aggregates (notebook)
+
+- Download `02 - Data Transformation - Business.ipynb`.
+- Import, open, and run it.
+
+The notebook produces two aggregates — one via PySpark, one via Spark SQL — so SQL-first and Python-first attendees see the same outcome through their preferred lens:
+
+```python
+df_fact      = spark.read.table("wwilakehouse.fact_sale")
+df_date      = spark.read.table("wwilakehouse.dimension_date")
+df_city      = spark.read.table("wwilakehouse.dimension_city")
+
+sale_by_date_city = (df_fact.alias("sale")
+    .join(df_date.alias("date"), df_fact.InvoiceDateKey == df_date.Date)
+    .join(df_city.alias("city"), df_fact.CityKey == df_city.CityKey)
+    .groupBy("date.Date", "date.CalendarMonthLabel", "date.CalendarYear",
+             "city.City", "city.StateProvince", "city.SalesTerritory")
+    .sum("TotalExcludingTax", "TaxAmount", "TotalIncludingTax", "Profit")
+    .withColumnRenamed("sum(TotalExcludingTax)",  "SumOfTotalExcludingTax")
+    .withColumnRenamed("sum(TaxAmount)",          "SumOfTaxAmount")
+    .withColumnRenamed("sum(TotalIncludingTax)",  "SumOfTotalIncludingTax")
+    .withColumnRenamed("sum(Profit)",             "SumOfProfit"))
+
+(sale_by_date_city.write.mode("overwrite").format("delta")
+    .option("overwriteSchema", "true")
+    .saveAsTable("aggregate_sale_by_date_city"))
+```
+
+```sql
+%%sql
+CREATE OR REPLACE TABLE wwilakehouse.aggregate_sale_by_date_employee
+USING DELTA AS
+SELECT DD.Date, DD.CalendarMonthLabel, DD.CalendarYear,
+       DE.PreferredName, DE.Employee,
+       SUM(FS.TotalExcludingTax) AS SumOfTotalExcludingTax,
+       SUM(FS.TaxAmount)         AS SumOfTaxAmount,
+       SUM(FS.TotalIncludingTax) AS SumOfTotalIncludingTax,
+       SUM(FS.Profit)            AS SumOfProfit
+FROM wwilakehouse.fact_sale FS
+JOIN wwilakehouse.dimension_date     DD ON FS.InvoiceDateKey  = DD.Date
+JOIN wwilakehouse.dimension_employee DE ON FS.SalespersonKey  = DE.EmployeeKey
+GROUP BY DD.Date, DD.CalendarMonthLabel, DD.CalendarYear, DE.PreferredName, DE.Employee;
+```
+
+**Explanation:** The aggregates are curated gold tables — materialised joins and `GROUP BY`s that reporting will hit directly. Doing this once in the Lakehouse keeps Power BI responsive and avoids re-computing joins per visual.
+**Checkpoint:** `aggregate_sale_by_date_city` and `aggregate_sale_by_date_employee` both appear under **Tables**.
+
+#### Step 7: Query via the SQL analytics endpoint
+
+- From the Lakehouse, top-right dropdown > **SQL analytics endpoint**.
 - Select **New SQL query**.
-- Run this query.
+- Run:
 
 ```sql
-SELECT BuyingGroup, Count(*) AS Total FROM dimension_customer GROUP BY BuyingGroup
+SELECT TOP 10 City, StateProvince, SUM(SumOfProfit) AS Profit
+FROM aggregate_sale_by_date_city
+GROUP BY City, StateProvince
+ORDER BY Profit DESC;
 ```
 
-- From the Lakehouse ribbon, select **New Power BI semantic model**.
-- Name it `wwilakehouse_model`.
-- Select `dimension_customer`.
-- Select **Confirm**.
+**Explanation:** The SQL endpoint exposes Lakehouse tables as T-SQL — a quick way for SQL-first users to validate the gold layer before touching Power BI.
+**Checkpoint:** The query returns the top 10 cities by profit.
 
-**Explanation:** The SQL analytics endpoint exposes Lakehouse tables through T-SQL for quick validation. Since Sept 2025, Fabric no longer auto-creates default semantic models — you now create them explicitly.
-**Checkpoint:** The query returns totals by `BuyingGroup`, and `dimension_customer` is included in `wwilakehouse_model`.
+#### Step 8: Build the semantic model with insight-driving DAX
 
-#### Step 5: Build the quick customer report
-
-- Return to the workspace item view.
-- Open the `wwilakehouse_model` semantic model.
-- Select **Explore this data** > **Auto-create a report**.
-- Review the generated visuals.
-- Select **Save**.
-- Give the report a clear name.
-
-**Explanation:** Auto-create quickly proves that the Lakehouse table can feed Power BI without building a report by hand.
-**Checkpoint:** A saved report based on `dimension_customer` appears in the workspace.
-
-### Module 3: Ingest, Prep and Analyze
-
-#### Step 6: Create the ingestion pipeline
-
-- Return to the `Fabric Lakehouse Tutorial` workspace.
-- The customer needs the Wide World Importers sample dataset (WWI Parquet files). Ask the CSA to supply an equivalent sample dataset for the customer's industry, or point the pipeline at any Parquet source with a fact table and 4-5 dimensions matching `data/README.md`.
-- Load `data/*.csv` into the Lakehouse Files section via **Get data → Upload files** or a Copy pipeline pointed at wherever the CSA hosted the sample.
-- If using WWI Parquet files, keep the folder path as `Files/wwi-raw-data/WideWorldImportersDW`.
-- Open `wwilakehouse` and refresh the explorer.
-
-**Explanation:** The files provide the raw source for the notebook transformations. Keeping a stable folder path lets the later cells run unchanged.
-**Checkpoint:** `Files/wwi-raw-data/WideWorldImportersDW` exists in `wwilakehouse`.
-
-#### Step 7: Import and open the Delta table notebook
-
-- Download the notebooks from the lab **Scripts** folder.
-- Select **Import notebook**.
-- Select **Upload** in the **Import status** pane.
-- Upload all downloaded notebooks.
-- Return to the workspace item view.
-- Open `wwilakehouse`.
-- Select **Open notebook** > **Existing notebook**.
-- Open `01 - Create Delta Tables`.
-- Confirm the notebook is linked to `wwilakehouse` in the explorer.
-
-**Explanation:** The notebook converts raw WWI Parquet files into Delta tables. Fabric Live Pool starts Spark automatically when the first cell runs.
-**Checkpoint:** `01 - Create Delta Tables` opens with `wwilakehouse` attached.
-
-#### Step 8: Write `fact_sale` as a partitioned Delta table
-
-- Enable the first notebook cell settings for V-order and Optimize Write.
-- Run the cell.
-- Run the fact table transformation cell.
-
-```python
-from pyspark.sql.functions import col, year, month, quarter table_name = 'fact_sale'
-
-df = spark.read.format("parquet").load('Files/wwi-raw-data/WideWorldImportersDW/parquet/full/fact_sale_1y_full/')
-
-df = df.withColumn('Year', year(col("InvoiceDateKey")))
-
-df = df.withColumn('Quarter', quarter(col("InvoiceDateKey")))
-
-df = df.withColumn('Month', month(col("InvoiceDateKey")))
-
-df.write.mode("overwrite").format("delta").partitionBy("Year","Quarter").save("Tables/" + table_name)
-```
-
-**Explanation:** The code reads raw Parquet, adds date parts, and writes `fact_sale` as a Delta table partitioned by `Year` and `Quarter`. Optimize Write helps avoid excessive small files.
-**Checkpoint:** The `fact_sale` table appears under **Tables** after refreshing `wwilakehouse`.
-
-#### Step 9: Write the dimension tables as Delta tables
-
-- Run the notebook cell that defines `loadFullDataFromSource`.
-- Keep the dimension table list unchanged.
-- Refresh `wwilakehouse` after the cell finishes.
-
-```python
-from pyspark.sql.types import * def loadFullDataFromSource(table_name):
-
-df = spark.read.format("parquet").load('Files/wwi-raw-data/WideWorldImportersDW/parquet/full/' + table_name)
-
-df = df.select([c for c in df.columns if c != 'Photo'])
-
-df.write.mode("overwrite").format("delta").save("Tables/" + table_name)
-
-full_tables = [ 'dimension_city', 'dimension_date', 'dimension_employee', 'dimension_stock_item'
-
-] for table in full_tables:
-
-loadFullDataFromSource(table)
-```
-
-**Explanation:** The helper function applies the same load pattern to each dimension table and drops the unused `Photo` column.
-**Checkpoint:** `dimension_city`, `dimension_date`, `dimension_employee`, and `dimension_stock_item` appear under **Tables**.
-
-#### Step 10: Open the business transformation notebook
-
-- Return to the workspace item view.
-- Open `wwilakehouse`.
-- Select **Open notebook** > **Existing notebook**.
-- Open `02 - Data Transformation - Business`.
-- Confirm `wwilakehouse` is attached.
-- Set the environment to **Workspace default** if a session error appears.
-- Select **Run all**.
-
-**Explanation:** This notebook creates curated aggregate tables from the raw Delta tables. It shows both PySpark and Spark SQL paths over the same OneLake data.
-**Checkpoint:** The notebook finishes without errors.
-
-#### Step 11: Create `aggregate_sale_by_date_city` with PySpark
-
-- Run the PySpark aggregation cell.
-
-```python
-df_fact_sale = spark.read.table("wwilakehouse.fact_sale")
-
-df_dimension_date = spark.read.table("wwilakehouse.dimension_date")
-
-df_dimension_city = spark.read.table("wwilakehouse.dimension_city")
-
-sale_by_date_city = df_fact_sale.alias("sale") \ .join(df_dimension_date.alias("date"), df_fact_sale.InvoiceDateKey == df_dimension_date.Date, "inner") \ .join(df_dimension_city.alias("city"), df_fact_sale.CityKey == df_dimension_city.CityKey, "inner") \ .select("date.Date", "date.CalendarMonthLabel", "date.Day", "date.ShortMonth", "date.CalendarYear", "city.City", "city.StateProvince", "city.SalesTerritory", "sale.TotalExcludingTax", "sale.TaxAmount", "sale.TotalIncludingTax", "sale.Profit")\ .groupBy("date.Date", "date.CalendarMonthLabel", "date.Day", "date.ShortMonth", "date.CalendarYear", "city.City", "city.StateProvince", "city.SalesTerritory")\ .sum("sale.TotalExcludingTax", "sale.TaxAmount", "sale.TotalIncludingTax", "sale.Profit")\ .withColumnRenamed("sum(TotalExcludingTax)", "SumOfTotalExcludingTax")\ .withColumnRenamed("sum(TaxAmount)", "SumOfTaxAmount")\ .withColumnRenamed("sum(TotalIncludingTax)", "SumOfTotalIncludingTax")\ .withColumnRenamed("sum(Profit)", "SumOfProfit")\ .orderBy("date.Date", "city.StateProvince", "city.City")
-
-sale_by_date_city.write.mode("overwrite").format("delta").option("overwriteSchema", "true").save("Tables/aggregate_sale_by_date_city")
-```
-
-**Explanation:** The PySpark path joins fact and dimension tables, groups sales by date and city, and persists a reusable aggregate.
-**Checkpoint:** `aggregate_sale_by_date_city` appears under **Tables**.
-
-#### Step 12: Create `aggregate_sale_by_date_employee` with Spark SQL
-
-- Run the Spark SQL aggregation cell.
-
-```sql
-%%sql CREATE OR REPLACE TEMPORARY VIEW sale_by_date_employee AS SELECT DD.Date, DD.CalendarMonthLabel , DD.Day, DD.ShortMonth Month, CalendarYear Year ,DE.PreferredName, DE.Employee ,SUM(FS.TotalExcludingTax) SumOfTotalExcludingTax ,SUM(FS.TaxAmount) SumOfTaxAmount ,SUM(FS.TotalIncludingTax) SumOfTotalIncludingTax ,SUM(Profit) SumOfProfit FROM wwilakehouse.fact_sale FS INNER JOIN wwilakehouse.dimension_date DD ON FS.InvoiceDateKey = DD.Date INNER JOIN wwilakehouse.dimension_Employee DE ON FS.SalespersonKey = DE.EmployeeKey GROUP BY DD.Date, DD.CalendarMonthLabel, DD.Day, DD.ShortMonth, DD.CalendarYear, DE.PreferredName, DE.Employee ORDER BY DD.Date ASC, DE.PreferredName ASC, DE.Employee ASC sale_by_date_employee = spark.sql("SELECT * FROM sale_by_date_employee")
-
-sale_by_date_employee.write.mode("overwrite").format("delta").option("overwriteSchema", "true").save("Tables/aggregate_sale_by_date_employee")
-```
-
-**Explanation:** The SQL path creates a temporary view and writes the result back as a Delta table, giving SQL-first users the same outcome as the PySpark path.
-**Checkpoint:** `aggregate_sale_by_date_employee` appears under **Tables**.
-
-#### Step 13: Prepare the semantic model
-
-- Open `wwilakehouse`.
-- Switch to **SQL analytics endpoint**.
-- Refresh if the tables are not visible.
 - From the Lakehouse ribbon, select **New Power BI semantic model**.
 - Name it `wwilakehouse_reporting_model`.
 - Select every table.
 - Select **Confirm**.
 - Open the **Model** view.
-- Drag `fact_sale.CityKey` to `dimension_city.CityKey`.
-- Set **Cardinality** to **Many to one (*:1)**.
-- Set **Cross filter direction** to **Single**.
-- Leave **Make this relationship active** checked.
-- Check **Assume referential integrity**.
-- Select **Save**.
-- Add these relationships:
-  - `StockItemKey` from `fact_sale` to `dimension_stock_item`
-  - `Salespersonkey` from `fact_sale` to `dimension_employee.EmployeeKey`
-  - `CustomerKey` from `fact_sale` to `dimension_customer.CustomerKey`
-  - `InvoiceDateKey` from `fact_sale` to `dimension_date.Date`
+- Add these relationships (Many-to-one, Single filter, Assume referential integrity):
+  - `fact_sale.CityKey`      → `dimension_city.CityKey`
+  - `fact_sale.CustomerKey`  → `dimension_customer.CustomerKey`
+  - `fact_sale.SalespersonKey` → `dimension_employee.EmployeeKey`
+  - `fact_sale.InvoiceDateKey` → `dimension_date.Date`
+- Mark `dimension_date` as a date table (`Date` column).
+- Add the two DAX measures below under the `fact_sale` table.
 
-**Explanation:** Since Sept 2025, Fabric no longer auto-creates default semantic models — you now create them explicitly. Relationships turn separate Lakehouse tables into a model Power BI can navigate.
-**Checkpoint:** The model shows fact-to-dimension relationships for city, stock item, employee, customer, and date.
+```DAX
+// Measure 1 — Rolling 3-Month Profit
+//
+// Shows a 3-month trailing profit per date context. Smooths monthly spikes and
+// highlights trend rather than noise. Uses the standard DATESINPERIOD time
+// intelligence pattern and depends on `dimension_date` being a marked date table.
 
-#### Step 14: Build the Power BI report
+Profit 3M Rolling =
+VAR CurrentDate = MAX ( dimension_date[Date] )
+VAR Window =
+    DATESINPERIOD ( dimension_date[Date], CurrentDate, -3, MONTH )
+RETURN
+    CALCULATE ( SUM ( fact_sale[Profit] ), Window )
+```
 
-- Select **New report**.
-- Add a text box titled `WW Importers Profit Reporting`.
-- Increase the title font size to 20 and place it in the upper left.
-- Add a card from `fact_sales.Profit`.
-- Add a clustered bar chart with `fact_sales.Profit` and `dimension_city.SalesTerritory`.
-- Add a stacked area chart with `fact_sales.Profit`, `dimension_date.FiscalMonthNumber`, and `dimension_stock_item.BuyingPackage`.
-- Add a stacked column chart with `fact_sales.Profit` and `dimension_employee.Employee`.
-- Select **File** > **Save**.
-- Name the report `Profit Reporting`.
-- Select **Save**.
+```DAX
+// Measure 2 — Profit YoY %
+//
+// Profit growth versus the same period last year, as a percentage. Surfaces
+// genuine performance change rather than absolute dollars and makes the matrix
+// visual readable across territories of very different size.
 
-**Explanation:** Direct Lake mode analyzes Delta tables in OneLake directly, without importing data.
-**Checkpoint:** The `Profit Reporting` report is saved in the workspace.
+Profit YoY % =
+VAR CurrentProfit  = SUM ( fact_sale[Profit] )
+VAR PriorProfit    =
+    CALCULATE (
+        SUM ( fact_sale[Profit] ),
+        SAMEPERIODLASTYEAR ( dimension_date[Date] )
+    )
+RETURN
+    DIVIDE ( CurrentProfit - PriorProfit, PriorProfit )
+```
+
+- Set `Profit 3M Rolling` format to currency, 0 decimals.
+- Set `Profit YoY %` format to percentage, 1 decimal.
+- Save the model.
+
+**Explanation:** Since Sept 2025 Fabric no longer auto-creates default semantic models — you create them explicitly. The two measures above are what make the model worth building: a plain `SUM(Profit)` tells you nothing new; a 3-month rolling trend and a YoY delta tell the story every reader actually wants.
+**Checkpoint:** Both measures appear in the fields list on the `fact_sale` table and return values in a quick card test.
+
+#### Step 9: Build the Power BI report
+
+- Open `wwilakehouse_reporting_model` > **Explore this data** or **New report**.
+- Add a text box titled `WW Importers Profit Reporting` (size 20, upper-left).
+- Add a card showing `Profit YoY %`.
+- Add a line chart with `dimension_date[CalendarMonthLabel]` on the axis and both `fact_sale[Profit]` and `Profit 3M Rolling` as values — the gap between the two tells the story at a glance.
+- Add a matrix: rows `dimension_city[SalesTerritory]`, columns `dimension_date[CalendarYear]`, values `Profit YoY %`. Apply conditional formatting (red → white → green) on the YoY measure.
+- Add a stacked column chart with `fact_sale[Profit]` by `dimension_employee[Employee]`.
+- Select **File** > **Save**, name the report `Profit Reporting`.
+
+**Explanation:** The report is Direct Lake — Power BI analyses the Delta tables in OneLake directly, without import. The two DAX measures do the analytical work; the visuals are deliberately simple.
+**Checkpoint:** The `Profit Reporting` report is saved in the workspace and the YoY matrix shows a clear red/green pattern.
 
 ### Module 4: Clean up resources
 
-#### Step 15: Delete the workspace
+#### Step 10: Delete the workspace
 
-- Return to the `Fabric Lakehouse Tutorial <suffix you added to make it unique>` workspace item view.
-- Select **Workspace settings**.
-- Select **Other** > **Delete this workspace**.
+- Return to the workspace item view.
+- Select **Workspace settings** > **Other** > **Delete this workspace**.
 - Select **Delete** on the warning.
 
-**Explanation:** Removing the workspace clears the lab Lakehouse, dataflow, pipeline, notebooks, semantic model, and report in one action.
+**Explanation:** Removing the workspace clears the Lakehouse, dataflow, notebooks, semantic model and report in one action.
 **Checkpoint:** The workspace no longer appears in the Workspaces list.
