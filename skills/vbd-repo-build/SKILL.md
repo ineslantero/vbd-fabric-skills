@@ -50,3 +50,10 @@ Final assembler. Consumes everything produced by upstream skills and stages a cl
 - Never push if any lab's freshness status is `outdated` and unresolved.
 - Never include `.vbd/transcript.md` in the pushed repo.
 - If the workshop sensitivity is `confidential` or higher, warn the CSA before any external push.
+
+## Publication guardrails
+
+- **Public reusable skills and templates must not contain customer-specific scoping, names, tenant IDs, private links or private source extracts.** Those live only in the generated customer deliverable, never in this skill repo.
+- **Confidential source access does not confer permission to publish.** Respect sensitivity labels and usage rights on anything read from SharePoint, OneDrive, or Teams; do not strip protection.
+- **Show the exact destination and publication content, and obtain confirmation before any update visible to others.** Keep local commits separate from outbound pushes — committing is not publishing.
+- **Use a private destination for customer deliverables unless the customer explicitly approved public distribution.** Do not silently change repository visibility.

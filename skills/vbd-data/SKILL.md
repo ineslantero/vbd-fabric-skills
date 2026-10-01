@@ -48,7 +48,7 @@ The NY Taxi reference is a fact (trips) + one small lookup (locations).
 
 ### Warehouse and RTI
 
-**No CSVs.** Warehouse loads from the Lakehouse output; RTI streams from Fabric's built-in sample eventstreams. Nothing to generate.
+Do not generate redundant CSVs. Warehouse normally reuses the Lakehouse output; document a complete standalone ingestion route if Warehouse is selected without Lakehouse or replayed independently. RTI can use a verified built-in sample; a bounded optional synthetic event generator must match the documented target schema.
 
 ## How to run
 
@@ -58,6 +58,9 @@ The NY Taxi reference is a fact (trips) + one small lookup (locations).
 4. **Show the CSA the mapping table + first 3 rows of each file (dry run)** and ask for approval before writing. Adjust based on feedback.
 5. **On approval, generate** with Faker or `random` under a fixed seed. Enforce referential integrity — every FK in the fact must resolve to a row in the matching dim.
 6. **Emit `data/README.md`** — one section per file with columns, row count, sample rows, and the seed used.
+7. **Make the data usable without the trainer.** Include repo-relative file paths, encoding/delimiter/header/date/null conventions, column types and primary/foreign keys, plus the exact target table names the labs will create. Provide a concrete upload/load procedure or link to the numbered lab steps that do it — "load the CSVs" alone is not a procedure.
+8. **Supply deterministic validation evidence.** Record actual generated row counts, key uniqueness, null expectations, foreign-key integrity and one known aggregate/join result the labs rely on. Document the generation date range, seed and Faker/library versions — **a fixed seed alone does not make today's date or a changing dependency deterministic**. Never invent expected results without calculating them from the generated data.
+9. **Reconcile all consumers.** Notebook, SQL and KQL snippets, learner challenges and the course walkthrough must use these exact column and table names and types. If a row is intentionally dirty for a cleaning exercise, label it and define the expected before/after check; do not silently violate the clean baseline.
 
 ## Guardrails
 
