@@ -22,16 +22,29 @@ The **Foundation VBD Discovery Labs** are covered end-to-end by `/vbd-lab-founda
 | 03 Real-Time Intelligence | `Real-time Intelligence Tutorial.docx` + KQL scripts | `labs/03-rti/` |
 | 04 Data Science | `Data Science Tutorial.docx` + NY taxi notebooks | `labs/04-datascience/` |
 
-Additional modules (Lakehouse, Data Factory, Data Warehouse, RTI, Data Science, Security, Power BI as their own VBDs) will be added as `/vbd-lab-<module>` skills.
+The **Security / Platform & Governance VBD** is covered by `/vbd-lab-security`. It has no SharePoint predecessor — it targets customers who already run a production Fabric estate and need the platform reviewed rather than introduced:
+
+| Lab | Covers | Skill output |
+|---|---|---|
+| 01 Admin and tenant settings | Admin portal, delegation, domains, admin monitoring, admin APIs | `labs/01-admin-tenant-settings/` |
+| 02 Security workspace to column | Workspace roles, item permissions, OneLake security, RLS, CLS, masking, enforcement boundary | `labs/02-security-workspace-to-column/` |
+| 03 Partner and contractor access | Entra B2B, external data sharing, groups, service principals, review and revocation | `labs/03-partner-access/` |
+| 04 Governance and cataloguing | Endorsement, lineage, sensitivity labels, Purview Unified Catalog, scanning | `labs/04-governance-catalogue/` |
+
+Remaining modules (Data Factory, Data Warehouse, RTI, Data Science, Power BI as their own VBDs) will be added as `/vbd-lab-<module>` skills.
+
+### Choosing a module
+
+`/vbd-plan` Step 3 scores the candidate labs. As a rule of thumb: **Foundation teaches people to build; Security reviews what they have already built.** A customer with several use cases already in production scores 0–1 on every Foundation lab.
 
 ## How to use (CSA workflow)
 
 1. **`/vbd-plan`** — paste transcript in chat, or point at a Teams meeting via WorkIQ. Skill produces a single `workshop-plan.md` (proposal + agenda + prereqs) and `workshop.yaml`. CSA reviews and edits.
 2. **`/vbd-data`** — reads `workshop.yaml`, generates industry-relevant dataset.
-3. **`/vbd-lab-foundation`** (and future `/vbd-lab-<module>`) — reads plan + data, authors labs. Every lab passes `components/freshness` verification before writing.
+3. **`/vbd-lab-foundation`** or **`/vbd-lab-security`** (and future `/vbd-lab-<module>`) — reads plan + data, authors labs. Every lab passes `components/freshness` verification before writing.
 4. **`/vbd-repo-build`** — assembles the final shareable repo; pushes to GitHub only on explicit CSA approval.
 
-All four skills work in both **Microsoft Scout** and **GitHub Copilot** (VS Code / CLI). See [`.github/prompts/`](./.github/prompts) for the Copilot entry points.
+All skills work in both **Microsoft Scout** and **GitHub Copilot** (VS Code / CLI). See [`.github/prompts/`](./.github/prompts) for the Copilot entry points.
 
 ## Repo layout
 
@@ -40,12 +53,15 @@ vbd-fabric-skills/
 ├── skills/                     ← CSA-invoked skills
 │   ├── vbd-plan/
 │   ├── vbd-data/
-│   ├── vbd-lab-foundation/
+│   ├── vbd-lab-foundation/     ← build-layer labs (green-field customers)
+│   ├── vbd-lab-security/       ← review-layer labs (customers already in production)
 │   └── vbd-repo-build/
 ├── templates/                  ← skeletons skills fill in
 │   ├── workshop.yaml
 │   ├── workshop-plan.md
 │   ├── lab-readme.md
+│   ├── repo-readme.md          ← customer-facing repo landing page
+│   ├── remediation-list.md     ← primary deliverable for review-style VBDs
 │   └── notebook.ipynb
 ├── components/                 ← shared helpers imported by skills
 │   ├── freshness/              ← MS Learn + roadmap verifier (mandatory gate)
